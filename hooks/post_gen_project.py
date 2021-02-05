@@ -1,4 +1,6 @@
 import os
+from urllib.request import urlretrieve
+
 
 packages = [
     'flake8',
@@ -34,7 +36,7 @@ def write_dependencies():
     if dependencies == 'requirements.txt':
         with open(dependencies, 'w') as f:
             lines = sorted(packages + pip_only_packages)
-            
+
             lines += [
                 ""
                 "-e ."
@@ -76,3 +78,10 @@ def write_dependencies():
 
 
 write_dependencies()
+
+{% if cookiecutter.ethics_checklist == "yes" %}
+urlretrieve(
+    "https://raw.githubusercontent.com/drivendataorg/deon/master/examples/ethics.md",
+    "ethics.md"
+)
+{% endif %}

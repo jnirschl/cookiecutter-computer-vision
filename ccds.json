@@ -26,5 +26,9 @@
         "none",
         "basic"
     ],
+    "ethics_checklist": [
+        "yes",
+        "no",
+     ],
     "open_source_license": ["MIT", "BSD-3-Clause", "No license file"]
 }
