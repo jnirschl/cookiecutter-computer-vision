@@ -30,6 +30,10 @@ packages += [
 ]
 {% endif %}
 
+{% if cookiecutter.nbautoexport == "yes" %}
+packages += ['nbautoexport']
+{% endif %}
+
 dependencies = '{{ cookiecutter.dependency_file }}'
 
 def write_dependencies():
