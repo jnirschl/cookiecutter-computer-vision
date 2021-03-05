@@ -91,6 +91,7 @@ def verify_files(root, config):
         "docs/index.rst",
         "docs/make.bat",
         "notebooks/.gitkeep",
+        "notebooks/.nbautoexport",
         "references/.gitkeep",
         "reports/.gitkeep",
         "reports/figures/.gitkeep",
