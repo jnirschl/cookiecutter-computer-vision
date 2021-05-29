@@ -1,4 +1,4 @@
-# Cookiecutter Data Science
+# Cookiecutter Computer Vision
 
 _A logical, reasonably standardized, but flexible project structure for doing and sharing data science work._
 
@@ -8,7 +8,7 @@ _A logical, reasonably standardized, but flexible project structure for doing an
 
 ### Requirements to use the cookiecutter template:
 -----------
- - Python 2.7 or 3.5+
+ - Python 3.5+
  - [Cookiecutter Python package](http://cookiecutter.readthedocs.org/en/latest/installation.html) >= 1.4.0: This can be installed with pip by or conda depending on how you manage your Python packages:
 
 ``` bash
@@ -82,10 +82,14 @@ The directory structure of your new project looks like this:
 │   ├── features       <- Scripts to turn raw data into features for modeling
 │   │   └── build_features.py
 │   │
+│   ├── img            <- Scripts for general image processing
+│   │
 │   ├── models         <- Scripts to train models and then use trained models to make
 │   │   │                 predictions
 │   │   ├── predict_model.py
 │   │   └── train_model.py
+│   │
+│   ├── tests         <- Scripts for unit testing with pytest
 │   │
 │   └── visualization  <- Scripts to create exploratory and results oriented visualizations
 │       └── visualize.py
