@@ -30,10 +30,10 @@ the latest version of data and trained models, which are hosted on
 
 ```bash
 # clone the repository
-git clone https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}.git
+git clone https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.repo_name }}.git
 
 # create virtual environment in folder
-cd {{ cookiecutter.project_slug }}
+cd {{ cookiecutter.repo_name }}
 python3 -m venv venv
 source venv/bin/activate
 
@@ -41,7 +41,7 @@ source venv/bin/activate
 pip3 install -r requirements.txt
 pip3 install .
 
-# pull data from origin (https://dagshub.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }})
+# pull data from origin (https://dagshub.com/{{ cookiecutter.github_username }}/{{ cookiecutter.repo_name }})
 dvc pull -r origin
 
 # check the status of the pipleline
