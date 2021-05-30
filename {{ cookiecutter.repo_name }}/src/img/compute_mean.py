@@ -29,7 +29,7 @@ cv2.setUseOptimized(True)
 #     default=Path("./data/interim").resolve(),
 #     type=click.Path(),
 # )
-def mean_image(mapfile, img_shape=None, grayscale=False):
+def main(mapfile, img_shape=None, grayscale=False):
     """Accept images as numpy array with images separated by rows
     and columns indicating pixel values"""
     assert type(mapfile) is str, TypeError(f"MAPFILE must be type STR")
@@ -90,4 +90,4 @@ if __name__ == "__main__":
     # load up the .env entries as environment variables
     load_dotenv(find_dotenv())
 
-    mean_image()
+    main()
