@@ -1,9 +1,47 @@
-{{cookiecutter.project_name}}
+# {{cookiecutter.project_name}}
+![GitHub](https://img.shields.io/github/license/{{cookiecutter.github_username}}/{{cookiecutter.repo_name}})
 ==============================
 
+## Project goals
 {{cookiecutter.description}}
 
-Project Organization
+## Getting started
+
+This repository uses [Data Version Control (DVC)](https://dvc.org/) to create a machine learning pipeline and track
+experiments. We will use a modified version of
+the [Team Data Science Process](https://docs.microsoft.com/en-us/azure/machine-learning/team-data-science-process/overview)
+as our Data Science Life cycle template. This repository template is based on
+the [cookiecutter data-science project template](https://drivendata.github.io/cookiecutter-data-science).
+
+In order to start, clone this repository and install [DataVersionControl](https://dvc.org/). Next, pip install
+requirements according to the script below. Finally, then pull the latest version of data and trained models, which are
+hosted on [DagsHub](https://dagshub.com/jnirschl/titanic_dvc).
+
+```bash
+# clone the repository
+git clone https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}.git
+
+# create virtual environment in folder
+cd {{ cookiecutter.project_slug }}
+python3 -m venv venv
+source venv/bin/activate
+
+# install requirements
+pip3 install -r requirements.txt
+pip3 install .
+
+# pull data from origin (https://dagshub.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }})
+dvc pull -r origin
+
+# check the status of the pipleline
+dvc status
+
+# Expected output
+#   Data and pipelines are up to date.
+```
+
+
+## Project Organization
 ------------
 
     ├── LICENSE
@@ -49,6 +87,7 @@ Project Organization
     │   └── visualization  <- Scripts to create exploratory and results oriented visualizations
     │       └── visualize.py
     │
+    └── pytest.ini         <- ini file with settings for running pytest; see pytest.readthedocs.io
     └── tox.ini            <- tox file with settings for running tox; see tox.readthedocs.io
 
 
