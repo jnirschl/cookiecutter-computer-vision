@@ -1,21 +1,32 @@
 # {{cookiecutter.project_name}}
 ![GitHub](https://img.shields.io/github/license/{{cookiecutter.github_username}}/{{cookiecutter.repo_name}})
+
+<!---
+Add Zenodo DOI after first release
+[![DOI](https://zenodo.org/badge/123456789.svg)](https://zenodo.org/badge/latestdoi/123456789)
+--->
+
 ==============================
 
 ## Project goals
 {{cookiecutter.description}}
 
+## Contents
+* [Getting started](#getting-started)
+* [Project organization](#-project-organization)
+
 ## Getting started
 
-This repository uses [Data Version Control (DVC)](https://dvc.org/) to create a machine learning pipeline and track
-experiments. We will use a modified version of
-the [Team Data Science Process](https://docs.microsoft.com/en-us/azure/machine-learning/team-data-science-process/overview)
-as our Data Science Life cycle template. This repository template is based on
-the [cookiecutter data-science project template](https://drivendata.github.io/cookiecutter-data-science).
+This repository uses [Data Version Control (DVC)](https://dvc.org/) to create a
+machine learning pipeline and track experiments. We will use a modified version
+of the [Team Data Science Process](https://docs.microsoft.com/en-us/azure/machine-learning/team-data-science-process/overview)
+as our Data Science Life cycle template. This repository template is based on the
+[cookiecutter data-science project template](https://drivendata.github.io/cookiecutter-data-science).
 
-In order to start, clone this repository and install [DataVersionControl](https://dvc.org/). Next, pip install
-requirements according to the script below. Finally, then pull the latest version of data and trained models, which are
-hosted on [DagsHub](https://dagshub.com/jnirschl/titanic_dvc).
+In order to start, clone this repository and install [DataVersionControl](https://dvc.org/).
+Next, pip install the requirements according to the script below. Finally, pull
+the latest version of data and trained models, which are hosted on
+[DagsHub](https://dagshub.com/{{cookiecutter.github_username}}/{{cookiecutter.repo_name}}).
 
 ```bash
 # clone the repository
@@ -93,4 +104,4 @@ dvc status
 
 --------
 
-<p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
+<p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecuttercomputervision</small></p>

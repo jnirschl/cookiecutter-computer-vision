@@ -91,7 +91,7 @@ The directory structure of your new project looks like this:
 
 ## Contributing
 
-We welcome contributions! [See the docs for guidelines](https://drivendata.github.io/cookiecutter-data-science/#contributing).
+We welcome contributions! [See the docs for guidelines](https://jnirschl.github.io/cookiecutter-computer-vision/#contributing).
 
 ### Installing development requirements
 ------------
