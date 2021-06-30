@@ -23,6 +23,10 @@ pillow==8.2.0
 opencv-contrib-python~=4.5.2.52
 {% if cookiecutter.python_interpreter != 'python3' %}
 
+# code formatting
+black~=3.4.1
+black[d]~=3.4.1
+
 # backwards compatibility
 pathlib2
 {% endif %}
