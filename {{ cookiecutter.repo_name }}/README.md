@@ -51,6 +51,45 @@ dvc status
 #   Data and pipelines are up to date.
 ```
 
+## Data science life cycle
+
+### 1. Domain understanding/problem definition
+
+The first step in any data science life cycle is to define the question and to understand the problem domain and prior
+knowledge. Given a well-formulated question, the team can specify the goal of the machine learning application (e.g.,
+regression, classification, clustering, outlier detection) and how it will be measured, and which data sources will be
+needed. The scope of the project, key personnel, key milestones, and general project architecture/overview is specified
+in the Project Charter and iterated throughout the life of the project. A list of data sources which are available or
+need to be collected is specified in the table of data sources. Finally, the existing data is summarized in a data
+dictionary that describes the features, number of elements, non-null data, data type (e.g., nominal, ordinal,
+continuous), data range, as well as a table with key descriptive summary statistics.
+
+*Deliverables Step 1:*
+1. Project charter
+2. Table of data sources
+3. Data dictionary
+4. Summary table of raw dataset
+
+#### Downloading the dataset
+
+The script [make_dataset.py](src/data/make_dataset.py) will download the dataset from Kaggle, create a data dictionary,
+and summarize the dataset using [TableOne](https://pypi.org/project/tableone/). The key artifacts of this DVC stage are
+the [raw training and testing datasets](data/raw), the [data_dictionary](reports/figures/data_dictionary.tex), and
+the [summary table](/reports/figures/table_one.tex).
+
+In your terminal, use the command-line interface to build the first stage of the pipeline.
+
+``` bash
+dvc run -n make_dataset -p dtypes \
+-d src/data/make_dataset.py \
+-o data/raw/train.csv \
+-o data/raw/test.csv \
+-o reports/figures/table_one.tex
+-o reports/figures/data_dictionary.tex
+--desc "Download data from Kaggle, create data dictionary and summary dtable"\
+ python3 src/data/make_dataset.py -c titanic -tr train.csv -te test.csv -o "./data/raw"
+```
+
 
 ## Project Organization
 ------------
