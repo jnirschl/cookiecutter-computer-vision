@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+__all__ = ["mapfile"]
+
 import os
 from pathlib import Path
 
@@ -37,14 +39,14 @@ def convert_none_to_null(params):
     return "null" if params is None else params
 
 
-def save_params(params):
+def save_params(params, filepath="params.yaml"):
     """ """
     # convert None values to null
 
     # save params
     new_params = yaml.safe_dump(params)
 
-    with open("params.yaml", "w") as writer:
+    with open(filepath, "w") as writer:
         writer.write(new_params)
 
 

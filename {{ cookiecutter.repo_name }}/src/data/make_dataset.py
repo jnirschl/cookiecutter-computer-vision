@@ -1,22 +1,24 @@
 #!/usr/bin/env python3
 
-import os
-import click
 import logging
+import os
 from pathlib import Path
-from dotenv import find_dotenv, load_dotenv
-import pandas as pd
 
-import tensorflow as tf
+import click
+from dotenv import find_dotenv, load_dotenv
+
+# load custom libraries from src
+from src.data import mapfile
+from src.img import compute_mean
 
 # set tf warning options
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 
 @click.command()
-# @click.option(
-#     "--force", default=False, help="Overwrite of mapfile if it already exists."
-# )
+@click.option(
+    "--force", default=False, help="Force overwrite of mapfile_df and mean_img.png."
+)
 @click.argument(
     "input_dir",
     default=Path("./data/raw").resolve(),
@@ -27,9 +29,14 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
     default=Path("./data/interim").resolve(),
     type=click.Path(),
 )
-@click.argument("output_filename", default="mapfile.csv", type=click.Path())
-def create_mapfile(
-    input_dir, output_dir, output_filename="mapfile.csv", na_rep="nan"
+@click.argument("output_filename", default="mapfile_df.csv", type=click.Path())
+def main(
+    input_dir,
+    output_dir,
+    output_filename="mapfile_df.csv",
+    params_filepath="params.yaml",
+    force=False,
+    na_rep="nan",
 ):
 
     """Runs data processing scripts to accept a directory INPUT_DIR containing
@@ -37,27 +44,22 @@ def create_mapfile(
     mapping the image filepath to integer class labels, which is saved in
     OUTPUT_DIR.
     """
-    logger = logging.getLogger(__name__)
-    logger.info("making interim data set from raw data")
 
-    # resolve relative paths
-    input_dir = Path(input_dir).resolve()
-    output_dir = Path(output_dir).resolve()
+    # create mapfile_df
+    mapfile_df = mapfile.create(input_dir, output_dir, output_filename, na_rep)
 
-    # initialize dummy instance of ImageDataGenerator
-    datagen = tf.keras.preprocessing.image.ImageDataGenerator()
+    # compute mean image
+    compute_mean.image(
+        mapfile_df,
+        output_dir=output_dir,
+        force=force,
+        params_filepath=params_filepath,
+        color_mode="gray",
+    )
 
-    # create instance of DirectoryIterator
-    dir_iterator = tf.keras.preprocessing.image.DirectoryIterator(input_dir, datagen)
-
-    # create mapfile with a list of 0: relative filepath and 1:class labels
-    if dir_iterator.filepaths:
-        mapfile_df = pd.DataFrame(
-            {"filename": dir_iterator.filepaths, "label": dir_iterator.labels}
-        )
-
-        # save output mapfile
-        mapfile_df.to_csv(output_dir.joinpath(output_filename), na_rep=na_rep)
+    # split train test dev
+    mapfile.split(mapfile_df, "./data/processed")
+    return mapfile_df
 
 
 if __name__ == "__main__":
@@ -71,4 +73,4 @@ if __name__ == "__main__":
     # load up the .env entries as environment variables
     load_dotenv(find_dotenv())
 
-    create_mapfile()
+    main()
