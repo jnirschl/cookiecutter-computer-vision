@@ -37,7 +37,7 @@ def test_train_model(mapfile_path, cv_idx_path, test_params):
 
     runner = CliRunner()
     result = runner.invoke(
-        train_model.main, [mapfile_path, cv_idx_path, "-p", test_params]
+        train_model.main, [mapfile_path, cv_idx_path, "-p", test_params, "--debug"]
     )
 
     assert not result.exception

@@ -13,7 +13,7 @@ from tensorflow.data import AUTOTUNE
 
 # load custom libraries from src
 from src.data import mapfile, load_data
-from src.img.tfreader import tf_imread
+from src.img.tfreader import tf_imread, tf_dataset
 from src.img.augment import apply_transforms
 from src.data import load_params
 from src.models import networks
@@ -40,12 +40,14 @@ def train(
     )
 
     # load params
-    params = load_params(params_filepath)["flow_from_dataframe"]
-    random_seed = load_params(params_filepath)["random_seed"]
-    batch_size = params["batch_size"]
-    target_size = params["target_size"]
-    n_classes = params["n_classes"]
-    epochs = params["epochs"]
+    params = load_params(params_filepath)
+    train_params = params["train_model"]
+    random_seed, target_size, n_classes = (
+        params["random_seed"],
+        params["target_size"],
+        params["n_classes"],
+    )
+    batch_size, epochs = train_params["batch_size"], train_params["epochs"]
 
     # set random seed
     tf.random.set_seed(random_seed)
@@ -55,10 +57,14 @@ def train(
     dataset = tf.data.Dataset.from_tensor_slices(data_records)
 
     # build tf.data pipeline
+    dataset = dataset.map(tf_imread, num_parallel_calls=AUTOTUNE)  # read images
+
+    # apply transforms except while debugging
+    if not debug:
+        dataset = dataset.map(apply_transforms, num_parallel_calls=AUTOTUNE)
+
     dataset = (
-        dataset.map(tf_imread, num_parallel_calls=AUTOTUNE)
-        # .map(apply_transforms, num_parallel_calls=AUTOTUNE)
-        .cache()  # cache after mapping
+        dataset.cache()  # cache after mapping
         .shuffle(  # shuffle after caching to randomize order
             buffer_size=100,
             seed=random_seed,
@@ -81,6 +87,10 @@ def train(
     logger = logging.getLogger(__name__)
     logger.info(f"Training model for {epochs} epochs")
     history = model.fit(x=dataset, steps_per_epoch=100, epochs=epochs, verbose=1)
+
+    # dummy save results and model
+    model_dir
+    results_dir
 
     return history
 

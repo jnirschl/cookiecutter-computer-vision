@@ -19,9 +19,6 @@ def create(
     output_dir,
     output_filename="mapfile_df.csv",
     na_rep="nan",
-    target_size=None,
-    color_mode=None,
-    save_format=None,
     label_dict_name="label_encoding.yaml",
 ):
 
@@ -40,19 +37,10 @@ def create(
     # initialize dummy instance of ImageDataGenerator
     datagen = ImageDataGenerator()
 
-    # load params and set optional input args using params.yaml, if none given
-    params = load_params()
-    target_size, save_format, color_mode = set_options(
-        params, target_size, save_format, color_mode
-    )
-
     # create instance of DirectoryIterator
     dir_iterator = DirectoryIterator(
         input_dir,
         datagen,
-        target_size=target_size,
-        color_mode=color_mode,
-        save_format=save_format,
     )
 
     # create mapfile_df with a list of 0: relative filepath and 1:class labels
@@ -78,25 +66,3 @@ def create(
         # raise error if dir_iterator is empty
         return None
         # raise ValueError(f"No subdirectories with images identified in:\t{input_dir}")
-
-
-def set_options(params, target_size, save_format, color_mode):
-    """Sub-function to set optional input arguments"""
-
-    if target_size is None:
-        target_size = tuple(params["flow_from_dataframe"]["target_size"])
-
-    if save_format is None:
-        save_format = params["flow_from_dataframe"]["save_format"]
-
-    if color_mode is None:
-        color_mode = params["flow_from_dataframe"]["color_mode"]
-
-    # validate argument properties
-    assert type(target_size) is tuple, TypeError(f"TARGET_SIZE must be type{tuple}")
-    assert save_format in ["jpg", "png"], TypeError(f"SAVE_FORMAT must be 'jpg or png'")
-    assert color_mode in ["rgb", "rgba", "grayscale"], TypeError(
-        "COLOR_MODE must be 'rgb, rgba, or grayscale'"
-    )
-
-    return target_size, save_format, color_mode

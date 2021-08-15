@@ -53,7 +53,7 @@ def main(
     mapfile_path = str(Path(output_dir).joinpath(output_filename).resolve())
 
     # load params_filepath
-    params = load_params(params_filepath)["flow_from_dataframe"]
+    params = load_params(params_filepath)
     img_shape = tuple(params["target_size"])
     grayscale = params["color_mode"].lower() == "grayscale"
 
