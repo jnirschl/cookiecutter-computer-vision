@@ -32,7 +32,7 @@ def main(mapfile, output_dir=None):
     # set index
     train_df.index.name = "index"
 
-    # load params
+    # load params_filepath
     params = load_params()
     params_split = params['train_test_split']
     params_split["random_seed"] = params["random_seed"]

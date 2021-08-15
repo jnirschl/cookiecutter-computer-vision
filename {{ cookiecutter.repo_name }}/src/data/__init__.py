@@ -50,7 +50,7 @@ def save_params(params, filepath="params.yaml"):
         writer.write(new_params)
 
 
-def load_data(data_path, sep=",", header=None, index_col=None) -> object:
+def load_data(data_path, sep=",", header=None, index_col=None, dtype=None) -> object:
     """Helper function to load train and test files
      as well as optional param loading
 
@@ -64,10 +64,7 @@ def load_data(data_path, sep=",", header=None, index_col=None) -> object:
         object:
     """
     for elem in data_path:
-        if type(elem) is type(Path()):
-            assert elem.is_file(), FileNotFoundError
-        else:
-            assert os.path.isfile(data_path), FileNotFoundError
+        assert Path(elem).is_file(), FileNotFoundError
 
     # if single path as str, convert to list of str
     if type(data_path) is str:
@@ -75,7 +72,7 @@ def load_data(data_path, sep=",", header=None, index_col=None) -> object:
 
     # loop over filepath in list and read file
     output_df = [
-        pd.read_csv(elem, sep=sep, header=header, index_col=index_col)
+        pd.read_csv(elem, sep=sep, header=header, index_col=index_col, dtype=dtype)
         for elem in data_path
     ]
     # if single file as input, return single df not a list

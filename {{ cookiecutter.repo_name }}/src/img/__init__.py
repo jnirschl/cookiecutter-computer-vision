@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 # Standard library imports
+import tensorflow as tf
 
 # Image and array operations
 import cv2
