@@ -108,8 +108,10 @@ class TestCookieSetup(object):
             "results",
             "src",
             "src/data",
+            "src/data/mapfile",
             "src/features",
             "src/models",
+            "src/tests",
             "src/visualization",
         ]
 
