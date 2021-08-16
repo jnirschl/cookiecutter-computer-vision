@@ -23,7 +23,7 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 )
 @click.argument(
     "output_dir",
-    default=Path("./data/interim").resolve(),
+    default=Path("./data/processed").resolve(),
     type=click.Path(exists=True),
 )
 @click.argument("output_filename", default="mapfile_df.csv", type=click.Path())
@@ -60,7 +60,7 @@ def main(
     # compute mean image
     compute_mean.image(
         mapfile_path,
-        img_shape=None,  # TODO
+        img_shape=img_shape,  # TODO
         grayscale=grayscale,
         force=force,
         # params_filepath=params_filepath,

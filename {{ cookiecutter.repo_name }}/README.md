@@ -88,7 +88,7 @@ dvc run -n make_dataset -p color_mode,target_size \
 -o data/interim/mean_image.png \
 -o data/processed/split_train_dev.csv \
 --desc "Data processing script to create a mapfile from the specified data directory, split into train/dev/test, and compute the mean image"\
- python3 src/data/make_dataset.py "data/raw" "data/interim" "mapfile_df.csv" --force
+ python3 src/data/make_dataset.py "data/raw" "data/processed" "mapfile_df.csv" --force
 ```
 
 

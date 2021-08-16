@@ -19,17 +19,19 @@ def image(mapfile, img_shape=None, grayscale=False, force=True):
     """Accept str with full filepath to the mapfile, compute mean over all images,
     and write output mean image as png file."""
     assert type(mapfile) is str, TypeError(f"MAPFILE must be type STR")
-    assert img_shape is None or (img_shape is tuple and len(img_shape) == 3), TypeError(
-        f"IMG_SHAPE must be tuple with a length of 3"
-    )
+    # assert img_shape is None or (img_shape is tuple and len(img_shape) == 3), TypeError(
+    #     f"IMG_SHAPE must be tuple with a length of 3"
+    # )
+    # setup logging
+    logger = logging.getLogger(__name__)
+    logging_flag = False
 
     # set image flag
     FORMAT = cv2.IMREAD_GRAYSCALE if grayscale else cv2.IMREAD_COLOR
     # check if file exists
     if not force and Path(mapfile).parent.joinpath("mean_image.png").exists():
         mean_img_path = Path(mapfile).parent.joinpath("mean_image.png")
-        logger = logging.getLogger(__name__)
-        logger.info(f"Using existing mean image:\n\t{mean_img_path}")
+        logger.info(f"Using existing mean image:\n{mean_img_path}")
         return cv2.imread(mean_img_path, FORMAT)
 
     # read mapfile
@@ -42,13 +44,16 @@ def image(mapfile, img_shape=None, grayscale=False, force=True):
 
     mean_img = np.zeros(img_shape, dtype=np.float32)
 
-    logger = logging.getLogger(__name__)
-    logger.info("Computing mean image")
-
     # process files
+    logger.info("Computing mean image")
     for idx, (filename, label) in mapfile_df.iterrows():
         # print(f"{idx}\t{filename}\t{label}")
         img = cv2.imread(filename, FORMAT)
+        if not img.shape[0:2] == img_shape[0:2]:
+            if not logging_flag:
+                logger.info(f"Resizing images to:\n{img_shape}")  # print once
+                logging_flag = True
+            img = cv2.resize(img, img_shape[0:2], interpolation=cv2.INTER_AREA)
 
         # ensure image is valid
         if img is None:
@@ -75,7 +80,7 @@ def image(mapfile, img_shape=None, grayscale=False, force=True):
 @click.command()
 @click.argument(
     "mapfile",
-    default=Path("./data/interim/mapfile.csv").resolve(),
+    default=Path("./data/processed/mapfile_df.csv").resolve(),
     type=click.Path(exists=True),
 )
 @click.option("--img-shape", default=None, help="Tuple with image dimensions.")
