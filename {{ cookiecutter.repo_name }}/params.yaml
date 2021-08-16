@@ -1,6 +1,6 @@
-target_size: target_size
-n_classes:  n_classes 
-color_mode: color_mode 
+target_size: {{cookiecutter.target_size}}
+n_classes:  {{cookiecutter.n_classes}}
+color_mode: {{cookiecutter.color_mode}}
 train_model:
   batch_size: 32
   epochs: 10

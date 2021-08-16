@@ -11,8 +11,8 @@ args = {
     "author_name": "DrivenData",
     "open_source_license": "BSD-3-Clause",
     "python_interpreter": "python",
-    # "n_classes": 10,
-    # "color_mode": "grayscale",
+    "n_classes": "10",
+    "color_mode": "rgb",
 }
 
 

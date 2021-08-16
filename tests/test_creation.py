@@ -1,5 +1,6 @@
 import os
 import pytest
+import yaml
 from subprocess import check_output
 from conftest import system_check
 
@@ -55,11 +56,18 @@ class TestCookieSetup(object):
         assert license_path.exists()
         assert no_curlies(license_path)
 
-    #
-    # def test_params(self):
-    #     params_path = self.path / "params.yaml"
-    #     assert params_path.exists()
-    #     assert no_curlies(params_path)
+    def test_params(self):
+        params_path = self.path / "params.yaml"
+        assert params_path.exists()
+        assert no_curlies(params_path)
+
+        # test values in params
+        with open(params_path, "r") as file:
+            params = yaml.safe_load(file)
+
+        assert params["color_mode"] == "rgb"
+        assert params["n_classes"] == 10
+        assert params["target_size"] == [224, 224, 3]
 
     def test_license_type(self):
         setup_ = self.path / "setup.py"
