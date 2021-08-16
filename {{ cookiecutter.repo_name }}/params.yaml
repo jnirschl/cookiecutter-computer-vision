@@ -1,4 +1,4 @@
-target_size: {{ target_size }}
+target_size: target_size
 n_classes: {{ n_classes }}
 color_mode: {{ color_mode }}
 train_model:
