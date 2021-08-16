@@ -42,7 +42,7 @@ class TestCookieSetup(object):
         assert no_curlies(readme_path)
         if pytest.param.get("project_name"):
             with open(readme_path) as fin:
-                assert "DrivenData" == next(fin).strip()
+                assert "# DrivenData" == next(fin).strip()
 
     def test_setup(self):
         setup_ = self.path / "setup.py"
@@ -54,6 +54,12 @@ class TestCookieSetup(object):
         license_path = self.path / "LICENSE"
         assert license_path.exists()
         assert no_curlies(license_path)
+
+    #
+    # def test_params(self):
+    #     params_path = self.path / "params.yaml"
+    #     assert params_path.exists()
+    #     assert no_curlies(params_path)
 
     def test_license_type(self):
         setup_ = self.path / "setup.py"
@@ -91,6 +97,7 @@ class TestCookieSetup(object):
             "references",
             "reports",
             "reports/figures",
+            "results",
             "src",
             "src/data",
             "src/features",

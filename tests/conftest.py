@@ -11,6 +11,8 @@ args = {
     "author_name": "DrivenData",
     "open_source_license": "BSD-3-Clause",
     "python_interpreter": "python",
+    # "n_classes": 10,
+    # "color_mode": "grayscale",
 }
 
 
@@ -28,7 +30,11 @@ def default_baked_project(tmpdir_factory, request):
 
     pytest.param = request.param
     main.cookiecutter(
-        str(CCDS_ROOT), no_input=True, extra_context=pytest.param, output_dir=out_dir
+        str(CCDS_ROOT),
+        no_input=True,
+        extra_context=pytest.param,
+        output_dir=out_dir,
+        default_config=True,
     )
 
     pn = pytest.param.get("project_name") or "project_name"
