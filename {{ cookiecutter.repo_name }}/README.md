@@ -80,14 +80,15 @@ the [summary table](/reports/figures/table_one.tex).
 In your terminal, use the command-line interface to build the first stage of the pipeline.
 
 ``` bash
-dvc run -n make_dataset -p dtypes \
+dvc run -n make_dataset -p color_mode,target_size \
 -d src/data/make_dataset.py \
--o data/raw/train.csv \
--o data/raw/test.csv \
--o reports/figures/table_one.tex
--o reports/figures/data_dictionary.tex
---desc "Download data from Kaggle, create data dictionary and summary dtable"\
- python3 src/data/make_dataset.py -c titanic -tr train.csv -te test.csv -o "./data/raw"
+-d data/raw \
+-o data/interim/label_encoding.yaml \
+-o data/interim/mapfile_df.csv \
+-o data/interim/mean_image.png \
+-o data/processed/split_train_dev.csv \
+--desc "Data processing script to create a mapfile from the specified data directory, split into train/dev/test, and compute the mean image"\
+ python3 src/data/make_dataset.py "data/raw" "data/interim" "mapfile_df.csv" --force
 ```
 
 
