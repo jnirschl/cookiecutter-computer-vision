@@ -9,7 +9,7 @@ def tf_imread(data_records):
     # pixels intensities to the range [0, 1]
 
     image = tf.io.read_file(data_records[0])
-    image = tf.image.decode_png(image, channels=1)
+    image = tf.image.decode_png(image)
     image = tf.image.convert_image_dtype(image, dtype=tf.float32) / 255
     label = tf.strings.to_number(data_records[1], tf.int32)
     return image, label
