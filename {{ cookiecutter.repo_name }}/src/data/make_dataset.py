@@ -28,6 +28,10 @@ def create(
     mapping the image filepath to integer class labels, which is saved in
     OUTPUT_DIR.
     """
+    # fix output_filename file extension if not given
+    output_filename = Path(output_filename)
+    if output_filename.suffix.lower() != ".csv":
+        output_filename = output_filename.stem + ".csv"
 
     # create mapfile_df
     mapfile_df = mapfile.create(input_dir, output_dir, output_filename, na_rep)
