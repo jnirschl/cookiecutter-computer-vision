@@ -8,13 +8,13 @@ from src.models import train_model
 
 @pytest.fixture
 def mapfile_path():
-    filepath = "./src/tests/test_data/pytest_mapfile.csv"
+    filepath = "./src/tests/test_data/mnist_small/pytest_mapfile.csv"
     return str(Path(filepath).resolve())
 
 
 @pytest.fixture
 def cv_idx_path():
-    filepath = "./src/tests/test_data/split_train_dev.csv"
+    filepath = "./src/tests/test_data/mnist_small/split_train_dev.csv"
     return str(Path(filepath).resolve())
 
 
@@ -28,17 +28,23 @@ def test_params():
     return "./src/tests/test_data/test_params.yaml"
 
 
-def test_train_model(mapfile_path, cv_idx_path, test_params):
-    """ """
-    expected_history = {
-        "loss": 0.47114235162734985,
-        "sparse_categorical_accuracy": 0.9690625071525574,
-    }
+class TestTrainModel:
+    def test_mnist_python(self, mapfile_path, cv_idx_path):
+        """ """
+        # history = train_model.train(mapfile_path, cv_idx_path)
+        pass
 
-    runner = CliRunner()
-    result = runner.invoke(
-        train_model.main, [mapfile_path, cv_idx_path, "-p", test_params, "--debug"]
-    )
+    def test_mnist_click(self, mapfile_path, cv_idx_path, test_params):
+        """ """
+        expected_history = {
+            "loss": 0.47114235162734985,
+            "sparse_categorical_accuracy": 0.9690625071525574,
+        }
 
-    assert not result.exception
-    assert result.exit_code == 0
+        runner = CliRunner()
+        result = runner.invoke(
+            train_model.main, [mapfile_path, cv_idx_path, "-p", test_params, "--debug"]
+        )
+
+        assert not result.exception
+        assert result.exit_code == 0
