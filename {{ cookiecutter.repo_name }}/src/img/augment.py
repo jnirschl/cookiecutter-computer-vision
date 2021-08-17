@@ -57,9 +57,9 @@ def random_rotate(img, rotation):
 
 
 @tf.function()
-def apply_transforms(img, label, mean=127.5, max_delta=0.2):
+def apply_transforms(img, label, input_shape, mean=127.5, max_delta=0.2):
     # resizing to 286x286
-    # img = tf_resize(img, 286, 286)
+    img = tf_resize(img, input_shape[0], input_shape[1])
 
     # normalize image to range [-1, 1]
     img = tf_normalize(img, mean=mean)

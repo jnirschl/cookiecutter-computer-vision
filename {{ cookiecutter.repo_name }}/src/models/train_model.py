@@ -61,7 +61,10 @@ def train(
 
     # apply transforms except while debugging
     if not debug:
-        dataset = dataset.map(apply_transforms, num_parallel_calls=AUTOTUNE)
+        dataset = dataset.map(
+            lambda x, y: apply_transforms(x, y, input_shape=target_size),
+            num_parallel_calls=AUTOTUNE,
+        )
 
     dataset = (
         dataset.cache()  # cache after mapping
@@ -88,7 +91,7 @@ def train(
     # train model
     logger = logging.getLogger(__name__)
     logger.info(f"Training model for {epochs} epochs")
-    history = model.fit(x=dataset, steps_per_epoch=100, epochs=epochs, verbose=1)
+    history = model.fit(dataset, steps_per_epoch=100, epochs=epochs, verbose=1)
 
     # dummy save results and model
     model_dir
