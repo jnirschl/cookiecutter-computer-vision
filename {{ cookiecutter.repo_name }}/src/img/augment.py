@@ -57,12 +57,12 @@ def random_rotate(img, rotation):
 @tf.function()
 def apply_transforms(img, label, max_delta=0.2):
     # resizing to 286x286
-    img = tf_resize(img, 286, 286)
+    # img = tf_resize(img, 286, 286)
 
     # random brightness
     img = random_brightness(img, max_delta=max_delta)
 
-    img = random_crop(img)  # random crop
+    # img = random_crop(img)  # random crop
 
     if tf.random.uniform(()) > 0.5:
         img = random_flip(img)  # random mirror
