@@ -48,7 +48,7 @@ def create(
     )
 
     # split train test dev
-    mapfile.split(mapfile_df, "./data/processed")
+    mapfile.split(mapfile_df, output_dir)
     return mapfile_df
 
 
