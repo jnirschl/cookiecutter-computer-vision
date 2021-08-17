@@ -9,10 +9,12 @@ import tensorflow_addons as tfa
 
 
 @tf.function
-def tf_normalize(img):
+def tf_normalize(img, mean=127.5):
     """Accept a uint8 input image as a tf.data.tensor_slice and return the
     image normalized to the range [-1, 1]"""
-    return tf.math.subtract(tf.math.divide(img, 127.5), 1, name="tf_normalize")
+    return tf.math.subtract(
+        tf.math.divide(img, tf.constant(mean)), 1, name="tf_normalize"
+    )
 
 
 @tf.function
@@ -55,9 +57,12 @@ def random_rotate(img, rotation):
 
 
 @tf.function()
-def apply_transforms(img, label, max_delta=0.2):
+def apply_transforms(img, label, mean=127.5, max_delta=0.2):
     # resizing to 286x286
     # img = tf_resize(img, 286, 286)
+
+    # normalize image to range [-1, 1]
+    img = tf_normalize(img, mean=mean)
 
     # random brightness
     img = random_brightness(img, max_delta=max_delta)
