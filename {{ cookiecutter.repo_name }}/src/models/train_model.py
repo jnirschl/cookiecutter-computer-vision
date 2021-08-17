@@ -69,7 +69,7 @@ def train(
     dataset = (
         dataset.cache()  # cache after mapping
         .shuffle(  # shuffle after caching to randomize order
-            buffer_size=100,
+            buffer_size=mapfile_df.shape[0],
             seed=random_seed,
             reshuffle_each_iteration=True,
         )
