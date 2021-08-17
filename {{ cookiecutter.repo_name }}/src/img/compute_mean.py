@@ -49,7 +49,7 @@ def image(mapfile, img_shape=None, grayscale=False, force=True):
     for idx, (filename, label) in mapfile_df.iterrows():
         # print(f"{idx}\t{filename}\t{label}")
         img = cv2.imread(filename, FORMAT)
-        if not img.shape[0:2] == img_shape[0:2]:
+        if img.shape[0:2] != img_shape[0:2]:
             if not logging_flag:
                 logger.info(f"Resizing images to:\n{img_shape}")  # print once
                 logging_flag = True
