@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
+import numpy as np
 import tensorflow as tf
 from tensorflow import image
+import tensorflow_addons as tfa
 
 # from src.img import tf_normalize
 
@@ -47,6 +49,16 @@ def random_brightness(img, max_delta=0.2):
     """Accepts and image and label as tf.data.tensor_slices and returns
     a transformed image with random horizontal and vertical flipping"""
     return tf.image.random_brightness(img, max_delta=max_delta)
+
+
+@tf.function
+def random_filtering(img, filter_shape=11):
+    return tfa.image.mean_filter2d(img, filter_shape=filter_shape)
+
+
+@tf.function
+def random_rotate(img, rotation):
+    return tfa.image.rotate(img, tf.constant(np.pi / 8))
 
 
 @tf.function()
