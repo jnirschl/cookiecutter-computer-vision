@@ -26,14 +26,7 @@ def tf_resize(img, height, width, resize_method=image.ResizeMethod.NEAREST_NEIGH
 def random_crop(img, IMG_HEIGHT=224, IMG_WIDTH=224):
     """Accepts and image and label as tf.data.tensor_slices and returns
     the image and label with random cropping applied"""
-    return tf.image.random_crop(img, size=[2, IMG_HEIGHT, IMG_WIDTH, 3])
-
-
-@tf.function
-def random_crop(img, IMG_HEIGHT=224, IMG_WIDTH=224):
-    """Accepts and image and label as tf.data.tensor_slices and returns
-    the image and label with random cropping applied"""
-    return tf.image.random_crop(img, size=[2, IMG_HEIGHT, IMG_WIDTH, 3])
+    return tf.image.random_crop(img, size=[1, IMG_HEIGHT, IMG_WIDTH, 3])
 
 
 @tf.function
@@ -58,7 +51,7 @@ def random_filtering(img, filter_shape=11):
 
 @tf.function
 def random_rotate(img, rotation):
-    return tfa.image.rotate(img, tf.constant(np.pi / 8))
+    return tfa.image.rotate(img, tf.constant(np.pi / np.random.randint(8)))
 
 
 @tf.function()
