@@ -29,17 +29,24 @@ def test_params():
 
 
 class TestTrainModel:
-    def test_mnist_python(self, mapfile_path, cv_idx_path):
+    def test_mnist_python(self, mapfile_path, cv_idx_path, test_params):
         """ """
-        # history = train_model.train(mapfile_path, cv_idx_path)
-        pass
+        expected_history = {
+            "loss": 2.2681679725646973,
+            "sparse_categorical_accuracy": 0.5753124952316284,
+        }
+
+        history = train_model.train(
+            mapfile_path, cv_idx_path, params_filepath=test_params, debug=True
+        )
+        assert history.history["loss"][-1] == expected_history["loss"]
+        assert (
+            history.history["sparse_categorical_accuracy"][-1]
+            == expected_history["sparse_categorical_accuracy"]
+        )
 
     def test_mnist_click(self, mapfile_path, cv_idx_path, test_params):
         """ """
-        expected_history = {
-            "loss": 0.47114235162734985,
-            "sparse_categorical_accuracy": 0.9690625071525574,
-        }
 
         runner = CliRunner()
         result = runner.invoke(
