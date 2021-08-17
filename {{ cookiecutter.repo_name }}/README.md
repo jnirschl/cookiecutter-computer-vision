@@ -42,6 +42,7 @@ pip3 install -r requirements.txt
 pip3 install .
 
 # pull data from origin (https://dagshub.com/{{ cookiecutter.github_username }}/{{ cookiecutter.repo_name }})
+dvc init
 dvc pull -r origin
 
 # check the status of the pipleline
