@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os.path
 
+import pandas as pd
 import pytest
 from pathlib import Path
 from click.testing import CliRunner
@@ -28,31 +29,37 @@ def test_params():
     return "./src/tests/test_data/test_params.yaml"
 
 
-def test_make_dataset(input_dir, output_dir, output_filename, test_params):
-    """TODO"""
-    # delete existing file
-    if Path(output_dir).joinpath(output_filename).exists():
-        os.remove(Path(output_dir).joinpath(output_filename))
+class TestMakeDataset:
+    def test_mnist_python(self, input_dir, output_dir, output_filename):
+        """ """
+        mapfile_df = make_dataset.create(input_dir, output_dir, output_filename)
+        assert type(mapfile_df) is type(pd.DataFrame())
 
-    runner = CliRunner()
-    result = runner.invoke(
-        make_dataset.main,
-        [
-            input_dir,
-            output_dir,
-            output_filename,
-            "-p",
-            "./src/tests/test_data/test_params.yaml",
-            "--force",
-        ],
-    )
+    def test_mnist_click(self, input_dir, output_dir, output_filename, test_params):
+        """TODO"""
+        # delete existing file
+        if Path(output_dir).joinpath(output_filename).exists():
+            os.remove(Path(output_dir).joinpath(output_filename))
 
-    assert result.exit_code == 0
-    assert not result.exception
-    assert (
-        result.output.strip()
-        == "Found 100 images belonging to 10 classes.\nProcessed 100 images."
-    )
-    assert Path(output_dir).joinpath(output_filename).exists()
-    assert Path(output_dir).joinpath("label_encoding.yaml").exists()
-    assert Path(output_dir).joinpath("split_train_dev.csv").exists()
+        runner = CliRunner()
+        result = runner.invoke(
+            make_dataset.main,
+            [
+                input_dir,
+                output_dir,
+                output_filename,
+                "-p",
+                "./src/tests/test_data/test_params.yaml",
+                "--force",
+            ],
+        )
+
+        assert result.exit_code == 0
+        assert not result.exception
+        assert (
+            result.output.strip()
+            == "Found 100 images belonging to 10 classes.\nProcessed 100 images."
+        )
+        assert Path(output_dir).joinpath(output_filename).exists()
+        assert Path(output_dir).joinpath("label_encoding.yaml").exists()
+        assert Path(output_dir).joinpath("split_train_dev.csv").exists()

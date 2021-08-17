@@ -15,26 +15,7 @@ from src.img import compute_mean
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 
-@click.command()
-@click.argument(
-    "input_dir",
-    default=Path("./data/raw").resolve(),
-    type=click.Path(exists=True),
-)
-@click.argument(
-    "output_dir",
-    default=Path("./data/processed").resolve(),
-    type=click.Path(exists=True),
-)
-@click.argument("output_filename", default="mapfile_df.csv", type=click.Path())
-@click.option("--params_filepath", "-p", default="params.yaml")
-@click.option(
-    "--force",
-    is_flag=True,
-    help="Switch to force overwrite existing mean image.",
-)
-@click.option("--na-rep", default="nan")
-def main(
+def create(
     input_dir,
     output_dir,
     output_filename="mapfile_df.csv",
@@ -69,6 +50,43 @@ def main(
     # split train test dev
     mapfile.split(mapfile_df, "./data/processed")
     return mapfile_df
+
+
+@click.command()
+@click.argument(
+    "input_dir",
+    default=Path("./data/raw").resolve(),
+    type=click.Path(exists=True),
+)
+@click.argument(
+    "output_dir",
+    default=Path("./data/processed").resolve(),
+    type=click.Path(exists=True),
+)
+@click.argument("output_filename", default="mapfile_df.csv", type=click.Path())
+@click.option("--params_filepath", "-p", default="params.yaml")
+@click.option(
+    "--force",
+    is_flag=True,
+    help="Switch to force overwrite existing mean image.",
+)
+@click.option("--na-rep", default="nan")
+def main(
+    input_dir,
+    output_dir,
+    output_filename="mapfile_df.csv",
+    params_filepath="params.yaml",
+    force=True,
+    na_rep="nan",
+):
+    create(
+        input_dir,
+        output_dir,
+        output_filename=output_filename,
+        params_filepath=params_filepath,
+        force=force,
+        na_rep=na_rep,
+    )
 
 
 if __name__ == "__main__":
