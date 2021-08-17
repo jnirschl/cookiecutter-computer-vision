@@ -29,7 +29,7 @@ def train(
     results_dir="./results",
     model_dir="./models",
     debug=False,
-):  # sourcery skip: inline-immediately-returned-variable
+):
     """Accept filepaths to the mapfile and train-dev split, train mode, and return
     training history."""
     assert type(mapfile_path) is str, TypeError(f"MAPFILE must be type STR")
@@ -81,7 +81,9 @@ def train(
     )
 
     # create model
-    model = networks.simple_nn(input_shape=target_size, n_classes=n_classes)
+    model = networks.simple_nn(
+        input_shape=target_size, n_classes=n_classes, debug=debug
+    )
 
     # train model
     logger = logging.getLogger(__name__)
