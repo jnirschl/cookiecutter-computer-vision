@@ -12,12 +12,12 @@ from src.data import mapfile
 
 @pytest.fixture
 def input_dir():
-    return "./src/tests/test_data/mnist_small_train"
+    return "./src/tests/test_data/mnist_small"
 
 
 @pytest.fixture
 def output_dir():
-    return "./src/tests/test_data"
+    return "./src/tests/test_data/mnist_small"
 
 
 @pytest.fixture
@@ -27,7 +27,9 @@ def output_filename():
 
 @pytest.fixture
 def mapfile_df(output_filename):
-    return pd.read_csv(Path("./src/tests/test_data/").joinpath(output_filename))
+    return pd.read_csv(
+        Path("./src/tests/test_data/mnist_small/").joinpath(output_filename)
+    )
 
 
 class TestMapfile:  # input_dir, output_dir, output_filename

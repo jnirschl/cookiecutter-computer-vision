@@ -11,17 +11,19 @@ from src.img import compute_mean
 
 @pytest.fixture
 def mapfile_path():
-    return str(Path("./src/tests/test_data/pytest_mapfile.csv").resolve())
+    return str(Path("./src/tests/test_data/mnist_small/pytest_mapfile.csv").resolve())
 
 
 @pytest.fixture
 def output_dir():
-    return "./src/tests/test_data"
+    return "./src/tests/test_data/mnist_small"
 
 
 @pytest.fixture
 def ref_img():
-    return cv2.imread("./src/tests/test_data/mean_image_ref.png", cv2.IMREAD_GRAYSCALE)
+    return cv2.imread(
+        "./src/tests/test_data/mnist_small/mean_image_ref.png", cv2.IMREAD_GRAYSCALE
+    )
 
 
 @pytest.fixture

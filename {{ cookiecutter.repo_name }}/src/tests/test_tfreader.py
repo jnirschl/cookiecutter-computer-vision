@@ -10,7 +10,7 @@ from src.img.tfreader import tf_imread, tf_dataset
 
 @pytest.fixture
 def mapfile_df():
-    filepath = "./src/tests/test_data/pytest_mapfile.csv"
+    filepath = "./src/tests/test_data/mnist_small/pytest_mapfile.csv"
     return pd.read_csv(Path(filepath), index_col=0, dtype=str)
 
 

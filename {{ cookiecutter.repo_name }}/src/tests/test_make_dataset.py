@@ -11,12 +11,12 @@ from src.data import make_dataset
 
 @pytest.fixture
 def input_dir():
-    return "./src/tests/test_data/mnist_small_train"
+    return "./src/tests/test_data/mnist_small"
 
 
 @pytest.fixture
 def output_dir():
-    return "./src/tests/test_data"
+    return "./src/tests/test_data/mnist_small"
 
 
 @pytest.fixture
