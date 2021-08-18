@@ -91,7 +91,9 @@ def train(
     # train model
     logger = logging.getLogger(__name__)
     logger.info(f"Training model for {epochs} epochs")
-    history = model.fit(dataset, steps_per_epoch=100, epochs=epochs, verbose=1)
+    history = model.fit(
+        dataset, steps_per_epoch=mapfile_df.shape[0], epochs=epochs, verbose=1
+    )
 
     # dummy save results and model
     model_dir
