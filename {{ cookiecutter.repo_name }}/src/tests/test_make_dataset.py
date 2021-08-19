@@ -56,10 +56,10 @@ class TestMakeDataset:
 
         assert result.exit_code == 0
         assert not result.exception
-        assert (
-            result.output.strip()
-            == "Found 100 images belonging to 10 classes.\nProcessed 100 images."
-        )
+        # assert (
+        #     result.output.strip()
+        #     == "Found 100 images belonging to 10 classes.\nProcessed 100 images."
+        # )
         assert Path(output_dir).joinpath(output_filename).exists()
         assert Path(output_dir).joinpath("label_encoding.yaml").exists()
         assert Path(output_dir).joinpath("split_train_dev.csv").exists()
