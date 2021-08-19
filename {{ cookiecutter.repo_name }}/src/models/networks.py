@@ -3,7 +3,7 @@
 import tensorflow as tf
 
 
-def simple_nn(input_shape=(28, 28), n_classes=10, debug=False):
+def simple_nn(input_shape=(28, 28, 1), n_classes=10, debug=False):
     """ """
 
     if debug:
