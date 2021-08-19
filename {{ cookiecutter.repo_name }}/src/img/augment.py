@@ -9,8 +9,8 @@ import tensorflow_addons as tfa
 
 
 @tf.function
-def tf_normalize(img, mean=127.5):
-    """Accept a uint8 input image as a tf.data.tensor_slice and return the
+def tf_normalize(img, mean=0.5):
+    """Accept a tf.float32 input image as a tf.data.tensor_slice and return the
     image normalized to the range [-1, 1]"""
     return tf.math.subtract(
         tf.math.divide(img, tf.constant(mean)), 1, name="tf_normalize"
@@ -18,7 +18,7 @@ def tf_normalize(img, mean=127.5):
 
 
 @tf.function
-def tf_resize(img, height, width, resize_method=image.ResizeMethod.NEAREST_NEIGHBOR):
+def tf_resize(img, height, width, resize_method=image.ResizeMethod.BILINEAR):
     """Accepts and image as tf.data.tensor_slices and returns
     a"""
     return tf.image.resize(img, [height, width], method=resize_method)
@@ -57,7 +57,7 @@ def random_rotate(img, rotation):
 
 
 @tf.function()
-def apply_transforms(img, label, input_shape, mean=127.5, max_delta=0.2):
+def apply_transforms(img, label, input_shape, mean=0.5, max_delta=0.2):
     # resizing to 286x286
     img = tf_resize(img, input_shape[0], input_shape[1])
 
