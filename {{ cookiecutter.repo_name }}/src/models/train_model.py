@@ -57,7 +57,13 @@ def train(
     dataset = tf.data.Dataset.from_tensor_slices(data_records)
 
     # build tf.data pipeline
-    dataset = dataset.map(tf_imread, num_parallel_calls=AUTOTUNE)  # read images
+    if params["segmentation"]:
+        pass
+    else:
+        dataset = dataset.map(
+            tf_imread,
+            num_parallel_calls=AUTOTUNE,
+        )
 
     # apply transforms except while debugging
     if not debug:
