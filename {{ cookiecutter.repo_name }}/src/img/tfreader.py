@@ -17,6 +17,21 @@ def tf_imread(data_records):
     return image, label
 
 
+@tf.function
+def tf_imreadpair(data_records):
+    # read the data_records containing the file paths to two corresponding
+    # images, read images from disk, decode, and scale pixels intensities
+    # to the range [0, 1].
+
+    img1 = tf.image.decode_png(tf.io.read_file(data_records[0]))
+    img1 = tf.image.convert_image_dtype(img1, dtype=tf.float32)
+
+    img2 = tf.image.decode_png(tf.io.read_file(data_records[1]))
+    img2 = tf.image.convert_image_dtype(img2, dtype=tf.float32)
+
+    return img1, img2
+
+
 def tf_dataset(mapfile_df):
     """Accept a Pandas dataframe and return a TensorFlow Dataset"""
     # assert type(mapfile_df) is type(pd.DataFrame()), ValueError(
