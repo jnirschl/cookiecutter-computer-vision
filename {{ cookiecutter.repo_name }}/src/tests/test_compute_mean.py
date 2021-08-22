@@ -6,6 +6,7 @@ from click.testing import CliRunner
 from pathlib import Path
 import pytest
 
+from src.data import mapfile
 from src.img import compute_mean
 
 
@@ -46,6 +47,9 @@ class TestComputeMean:
     def test_mean_image(self, mapfile_path, output_dir, ref_img, grayscale, force):
         """Pytest function to test compute_mean.image"""
 
+        _ = mapfile.create(
+            Path(mapfile_path).parent, output_dir, Path(Path(mapfile_path).name)
+        )
         mean_img = compute_mean.image(mapfile_path, grayscale=grayscale, force=force)
         assert Path(output_dir).joinpath("mean_image.png").exists()
         assert (mean_img == ref_img).all()
