@@ -31,9 +31,4 @@ def simple_nn(input_shape=(28, 28, 1), n_classes=10, debug=False):
     # add output layer
     model.add(tf.keras.layers.Dense(n_classes))
 
-    model.compile(
-        optimizer=tf.keras.optimizers.Adam(0.001),
-        loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-        metrics=[tf.keras.metrics.SparseCategoricalAccuracy()],
-    )
     return model

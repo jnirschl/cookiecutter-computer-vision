@@ -13,7 +13,7 @@ from tensorflow.data import AUTOTUNE
 
 # load custom libraries from src
 from src.data import mapfile, load_data
-from src.img.tfreader import tf_imread, tf_dataset
+from src.img.tfreader import tf_imread, tf_imreadpair, tf_dataset
 from src.img.augment import apply_transforms
 from src.data import load_params
 from src.models import networks
@@ -58,7 +58,10 @@ def train(
 
     # build tf.data pipeline
     if params["segmentation"]:
-        pass
+        dataset = dataset.map(
+            tf_imreadpair,
+            num_parallel_calls=AUTOTUNE,
+        )
     else:
         dataset = dataset.map(
             tf_imread,
@@ -90,9 +93,21 @@ def train(
     )
 
     # create model
-    model = networks.simple_nn(
-        input_shape=target_size, n_classes=n_classes, debug=debug
-    )
+    if params["segmentation"]:
+        model = networks.unet(input_shape=target_size)
+        optimizer = tf.keras.optimizers.Adam(0.001)
+        model.compile(
+            optimizer=optimizer, loss="binary_crossentropy", metrics=["accuracy"]
+        )
+    else:
+        model = networks.simple_nn(
+            input_shape=target_size, n_classes=n_classes, debug=debug
+        )
+        model.compile(
+            optimizer=tf.keras.optimizers.Adam(0.001),
+            loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+            metrics=[tf.keras.metrics.SparseCategoricalAccuracy()],
+        )
 
     # train model
     logger = logging.getLogger(__name__)
