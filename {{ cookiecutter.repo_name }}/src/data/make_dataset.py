@@ -33,14 +33,20 @@ def create(
     if output_filename.suffix.lower() != ".csv":
         output_filename = output_filename.stem + ".csv"
 
-    # create mapfile_df
-    mapfile_df = mapfile.create(input_dir, output_dir, output_filename, na_rep)
-    mapfile_path = str(Path(output_dir).joinpath(output_filename).resolve())
-
     # load params_filepath
     params = load_params(params_filepath)
     img_shape = tuple(params["target_size"])
     grayscale = params["color_mode"].lower() == "grayscale"
+
+    # create mapfile_df
+    mapfile_df = mapfile.create(
+        input_dir,
+        output_dir,
+        output_filename=output_filename,
+        na_rep=na_rep,
+        segmentation=params["segmentation"],
+    )
+    mapfile_path = str(Path(output_dir).joinpath(output_filename).resolve())
 
     # compute mean image
     compute_mean.image(
@@ -52,7 +58,7 @@ def create(
     )
 
     # split train test dev
-    mapfile.split(mapfile_df, output_dir)
+    mapfile.split(mapfile_df, output_dir, params=params)
     return mapfile_df
 
 

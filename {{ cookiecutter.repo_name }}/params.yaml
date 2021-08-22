@@ -1,6 +1,7 @@
 target_size: [224, 224, 3]
 n_classes:  2
 color_mode: rgb
+segmentation: false
 train_model:
   batch_size: 32
   epochs: 10
