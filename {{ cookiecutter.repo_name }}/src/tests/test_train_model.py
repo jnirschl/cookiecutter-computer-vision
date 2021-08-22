@@ -13,8 +13,20 @@ def mapfile_path():
 
 
 @pytest.fixture
+def mapfile_path_seg():
+    filepath = "./src/tests/test_data/mito_seg/pytest_mapfile.csv"
+    return str(Path(filepath).resolve())
+
+
+@pytest.fixture
 def cv_idx_path():
     filepath = "./src/tests/test_data/mnist_small/split_train_dev.csv"
+    return str(Path(filepath).resolve())
+
+
+@pytest.fixture
+def cv_idx_path_seg():
+    filepath = "./src/tests/test_data/mito_seg/split_train_dev.csv"
     return str(Path(filepath).resolve())
 
 
@@ -28,12 +40,17 @@ def test_params():
     return "./src/tests/test_data/test_params.yaml"
 
 
+@pytest.fixture
+def test_params_seg():
+    return "./src/tests/test_data/mito_seg/params.yaml"
+
+
 class TestTrainModel:
     def test_mnist_python(self, mapfile_path, cv_idx_path, test_params):
         """ """
         expected_history = {
-            "loss": 2.2681679725646973,
-            "sparse_categorical_accuracy": 0.5753124952316284,
+            "loss": 0.4764450490474701,
+            "sparse_categorical_accuracy": 0.9278125166893005,
         }
 
         history = train_model.train(
@@ -55,3 +72,30 @@ class TestTrainModel:
 
         assert not result.exception
         assert result.exit_code == 0
+
+    def test_mito_seg(self, mapfile_path_seg, cv_idx_path_seg, test_params):
+        """ """
+        pass
+        # history = train_model.train(
+        #     mapfile_path_seg,
+        #     cv_idx_path_seg,
+        #     params_filepath=test_params_seg,
+        #     debug=True,
+        # )
+        # assert history.history["loss"][-1] == expected_history["loss"]
+        # assert (
+        #     history.history["sparse_categorical_accuracy"][-1]
+        #     == expected_history["sparse_categorical_accuracy"]
+        # )
+
+    def test_mito_seg_click(self, mapfile_path_seg, cv_idx_path_seg, test_params):
+        """ """
+
+        pass
+        # runner = CliRunner()
+        # result = runner.invoke(
+        #     train_model.main, [mapfile_path_seg, cv_idx_path_seg, "-p", test_params]
+        # )
+        #
+        # assert not result.exception
+        # assert result.exit_code == 0
