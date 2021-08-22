@@ -56,11 +56,11 @@ class TestTrainModel:
         history = train_model.train(
             mapfile_path, cv_idx_path, params_filepath=test_params, debug=True
         )
-        assert history.history["loss"][-1] == expected_history["loss"]
-        assert (
+        assert abs(history.history["loss"][-1] - expected_history["loss"]) < 0.0001
+        assert abs(
             history.history["sparse_categorical_accuracy"][-1]
-            == expected_history["sparse_categorical_accuracy"]
-        )
+            - expected_history["sparse_categorical_accuracy"]
+        ) < 0.0001
 
     def test_mnist_click(self, mapfile_path, cv_idx_path, test_params):
         """ """
