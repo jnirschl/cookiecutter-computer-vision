@@ -5,7 +5,6 @@ import click
 from dotenv import find_dotenv, load_dotenv
 import logging
 from pathlib import Path
-import pandas as pd
 
 import tensorflow as tf
 from tensorflow.data import AUTOTUNE
@@ -26,8 +25,8 @@ def train(
     mapfile_path,
     cv_idx_path,
     params_filepath="params.yaml",
-    results_dir="./results",
     model_dir="./models",
+    model_name="model",
     debug=False,
 ):
     """Accept filepaths to the mapfile and train-dev split, train mode, and return
@@ -97,7 +96,9 @@ def train(
         model = networks.unet(input_shape=target_size)
         optimizer = tf.keras.optimizers.Adam(0.001)
         model.compile(
-            optimizer=optimizer, loss="binary_crossentropy", metrics=["accuracy"]
+            optimizer=optimizer,
+            loss="binary_crossentropy",
+            metrics=["accuracy"],
         )
     else:
         model = networks.simple_nn(
@@ -116,9 +117,12 @@ def train(
         dataset, steps_per_epoch=mapfile_df.shape[0], epochs=epochs, verbose=1
     )
 
-    # dummy save results and model
-    model_dir
-    results_dir
+    # save model
+    model_filename = Path(model_dir).joinpath(f"{model_name}_{epochs:03d}")
+    # results_filename = Path(results_dir).joinpath(f"{model_name}_{epochs}")
+    # img_filepath = Path(results_dir).joinpath("test_image.png")
+
+    model.save(model_filename, save_format="tf")
 
     return history
 
@@ -148,6 +152,10 @@ def train(
     type=click.Path(),
 )
 @click.option(
+    "--model-name",
+    default="model",
+)
+@click.option(
     "--debug",
     is_flag=True,
     help="Debug switch that turns off augmentation, shuffle, and makes runs deterministic.",
@@ -158,6 +166,7 @@ def main(
     params_filepath="params.yaml",
     results_dir="./results",
     model_dir="./models",
+    model_name="model",
     debug=False,
 ):
     train(
@@ -166,6 +175,7 @@ def main(
         params_filepath=params_filepath,
         results_dir=results_dir,
         model_dir=model_dir,
+        model_name=model_name,
         debug=debug,
     )
 
