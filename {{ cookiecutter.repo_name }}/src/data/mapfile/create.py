@@ -55,6 +55,7 @@ def create(
         return mapfile_df
     else:
         # raise error if dir_iterator is empty
+        logging.error(f"{len(filepaths)} files found in directory:\n\t{str(input_dir)}")
         return None
         # raise ValueError(f"No subdirectories with images identified in:\t{input_dir}")
 
@@ -78,7 +79,8 @@ def classification_dir(input_dir, output_dir):
 
 
 def segmentation_dir(input_dir, save_format=".png"):
-
+    """Subfunction to glob image data and masks from input_dir and return
+    lists of the filepaths to images and masks."""
     # set vars
     image_prefix = "data"
     mask_prefix = "mask"
@@ -89,11 +91,29 @@ def segmentation_dir(input_dir, save_format=".png"):
         )
 
     # glob image filepaths in folder 'data'
-    image_dir = input_dir.joinpath(image_prefix, "*" + save_format)
-    image_filepaths = sorted(glob(str(image_dir)))
+    image_filepaths = []
+    mask_filepaths = []
 
-    # glob image filepaths in folder 'data'
-    mask_dir = input_dir.joinpath(mask_prefix, "*" + save_format)
-    mask_filepaths = sorted(glob(str(mask_dir)))
+    # set save_format to list
+    if type(save_format) is str:
+        save_format = [save_format]
+
+    # glob using multiple file types, if necessary
+    for file_ext in save_format:
+        image_dir = input_dir.joinpath(image_prefix, "*" + file_ext)
+        image_filepaths += sorted(glob(str(image_dir)))
+
+        # glob image filepaths in folder 'data'
+        mask_dir = input_dir.joinpath(mask_prefix, "*" + file_ext)
+        mask_filepaths += sorted(glob(str(mask_dir)))
+
+    # sort
+    image_filepaths = sorted(image_filepaths)
+    mask_filepaths = sorted(mask_filepaths)
+
+    assert len(image_filepaths) == len(mask_filepaths), ValueError(
+        f"List of filepaths for images {len(image_filepaths)} and "
+        f"masks {len(mask_filepaths)} must have the same length"
+    )
 
     return image_filepaths, mask_filepaths
