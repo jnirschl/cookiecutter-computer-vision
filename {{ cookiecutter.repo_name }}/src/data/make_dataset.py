@@ -51,7 +51,7 @@ def create(
     mapfile_path = str(Path(output_dir).joinpath(output_filename).resolve())
 
     # compute mean image
-    mean_img = compute_mean.image(
+    mean_img, std_img = compute_mean.image(
         mapfile_path,
         img_shape=img_shape,  # TODO
         grayscale=grayscale,
@@ -60,7 +60,8 @@ def create(
     )
 
     #
-    params["mean_img"] = [int(elem) for elem in np.mean(mean_img, axis=tuple(range(2)))]
+    params["mean_img"] = [float(elem) for elem in np.mean(mean_img, axis=tuple(range(2))) / 255.0]
+    params["std_img"] = [float(elem) for elem in np.mean(std_img, axis=tuple(range(2))) / 255.0]
     # save parameters
     save_params(params, filepath=params_filepath)
 

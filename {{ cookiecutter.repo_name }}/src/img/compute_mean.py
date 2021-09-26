@@ -24,7 +24,6 @@ def image(mapfile, img_shape=None, grayscale=False, force=True):
     # )
     # setup logging
     logger = logging.getLogger(__name__)
-    logging_flag = False
 
     # set image flag
     FORMAT = cv2.IMREAD_GRAYSCALE if grayscale else cv2.IMREAD_COLOR
@@ -37,21 +36,44 @@ def image(mapfile, img_shape=None, grayscale=False, force=True):
     # read mapfile
     mapfile_df = pd.read_csv(mapfile, sep=",", header=0, index_col=0)
 
-    # pre-allocate mean image
     if img_shape is None:
         # use shape of first image if none given
         img_shape = cv2.imread(mapfile_df["filename"][0], FORMAT).shape
 
+    # compute mean and std
+    mean_img = mean_subfun(mapfile_df, img_shape, FORMAT)
+    std_img = std_subfun(mean_img, mapfile_df, img_shape, FORMAT)
+
+    # save images
+    mean_filename = str(Path(mapfile).parent.joinpath("mean_image.png"))
+    cv2.imwrite(mean_filename, mean_img)
+    std_filename = str(Path(mapfile).parent.joinpath("std_image.png"))
+    cv2.imwrite(std_filename, std_img)
+    return mean_img, std_img
+
+
+def mean_subfun(mapfile_df, img_shape, FORMAT):
+    """"""
+
+    logger = logging.getLogger(__name__)
+    logging_flag = False
+
     mean_img = np.zeros(img_shape, dtype=np.float32)
 
     # process files
-    logger.info("Computing mean image")
+    logger.info("Computing image mean")
     for idx, (filename, label) in mapfile_df.iterrows():
         # print(f"{idx}\t{filename}\t{label}")
         img = cv2.imread(filename, FORMAT)
+
+        if img is None:
+            logging.warning(
+                f"Error opening file:\t{Path('./').joinpath(*Path(filename).parts[-3:])}"
+            )
+
         if img.shape[0:2] != img_shape[0:2]:
             if not logging_flag:
-                logger.info(f"Resizing images to:\n{img_shape}")  # print once
+                logger.info(f"Resizing images to: {img_shape}")  # print once
                 logging_flag = True
             img = cv2.resize(img, img_shape[0:2], interpolation=cv2.INTER_AREA)
 
@@ -70,11 +92,58 @@ def image(mapfile, img_shape=None, grayscale=False, force=True):
 
     # divide by n_images
     mean_img = np.divide(mean_img, idx + 1).astype(np.uint8)
-
-    # save image
-    output_filename = str(Path(mapfile).parent.joinpath("mean_image.png"))
-    cv2.imwrite(output_filename, mean_img)
     return mean_img
+
+
+def std_subfun(mean_img, mapfile_df, img_shape, FORMAT):
+    """"""
+
+    logger = logging.getLogger(__name__)
+    logging_flag = False
+
+    # normalize mean image
+    mean_img = (mean_img / 255.0).astype(dtype=np.float64)
+    std_img = np.zeros(img_shape, dtype=np.float64)
+
+    # process files
+    logger.info("Computing image standard deviation")
+    for idx, (filename, label) in mapfile_df.iterrows():
+        # print(f"{idx}\t{filename}\t{label}")
+        img = cv2.imread(filename, FORMAT)
+
+        if img is None:
+            logging.warning(
+                f"Error opening file:\t{Path('./').joinpath(*Path(filename).parts[-3:])}"
+            )
+
+        if img.shape[0:2] != img_shape[0:2]:
+            if not logging_flag:
+                logger.info(f"Resizing images to: {img_shape}")  # print once
+                logging_flag = True
+            img = cv2.resize(img, img_shape[0:2], interpolation=cv2.INTER_AREA)
+
+        # ensure image is valid
+        if img is None:
+            raise ValueError(f"Error loading image:\t{filename}")
+        if idx % 1000 == 0 and idx > 0:
+            print(f"Processed {idx} images.")
+
+        # subtract img from mean_img and square the difference
+        img_norm = (img/255.0).astype(dtype=np.float64)
+        diff_img_norm = np.subtract(img_norm, mean_img)
+        sq_diff_img_norm = np.power(diff_img_norm, 2)
+
+        # sum of the squared difference
+        std_img = cv2.accumulate(sq_diff_img_norm.astype(dtype=np.float64), std_img)
+
+    logger = logging.getLogger(__name__)
+    logger.info(f"Processed {idx+1} images.")
+    print(f"Processed {idx+1} images.")
+
+    # divide by n_images
+    std_img_float = np.sqrt(np.divide(std_img, idx + 1))
+    std_img_uint8 = (std_img_float*255.0).astype(np.uint8)
+    return std_img_uint8
 
 
 @click.command()
