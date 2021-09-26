@@ -2,13 +2,14 @@
 
 import logging
 import os
+import numpy as np
 from pathlib import Path
 
 import click
 from dotenv import find_dotenv, load_dotenv
 
 # load custom libraries from src
-from src.data import mapfile, load_params
+from src.data import mapfile, load_params, save_params
 from src.img import compute_mean
 
 # set tf warning options
@@ -45,18 +46,23 @@ def create(
         output_filename=output_filename,
         na_rep=na_rep,
         segmentation=params["segmentation"],
-        save_format=params["save_format"]
+        save_format=params["save_format"],
     )
     mapfile_path = str(Path(output_dir).joinpath(output_filename).resolve())
 
     # compute mean image
-    compute_mean.image(
+    mean_img = compute_mean.image(
         mapfile_path,
         img_shape=img_shape,  # TODO
         grayscale=grayscale,
         force=force,
         # params_filepath=params_filepath,
     )
+
+    #
+    params["mean_img"] = [int(elem) for elem in np.mean(mean_img, axis=tuple(range(2)))]
+    # save parameters
+    save_params(params, filepath=params_filepath)
 
     # split train test dev
     mapfile.split(mapfile_df, output_dir, params=params)
