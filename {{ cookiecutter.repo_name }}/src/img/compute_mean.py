@@ -71,6 +71,9 @@ def mean_subfun(mapfile_df, img_shape, FORMAT):
                 f"Error opening file:\t{Path('./').joinpath(*Path(filename).parts[-3:])}"
             )
 
+        if img.shape != mean_img.shape:
+            img = np.reshape(img, mean_img.shape)
+
         if img.shape[0:2] != img_shape[0:2]:
             if not logging_flag:
                 logger.info(f"Resizing images to: {img_shape}")  # print once
@@ -102,7 +105,7 @@ def std_subfun(mean_img, mapfile_df, img_shape, FORMAT):
     logging_flag = False
 
     # normalize mean image
-    mean_img = (mean_img / 255.0).astype(dtype=np.float64)
+    mean_img = np.divide(mean_img, 255.0).astype(dtype=np.float64)
     std_img = np.zeros(img_shape, dtype=np.float64)
 
     # process files
@@ -116,7 +119,10 @@ def std_subfun(mean_img, mapfile_df, img_shape, FORMAT):
                 f"Error opening file:\t{Path('./').joinpath(*Path(filename).parts[-3:])}"
             )
 
-        if img.shape[0:2] != img_shape[0:2]:
+        if img.shape != mean_img.shape:
+            img = np.reshape(img, mean_img.shape)
+
+        if tuple(img.shape[0:2]) != tuple(img_shape[0:2]):
             if not logging_flag:
                 logger.info(f"Resizing images to: {img_shape}")  # print once
                 logging_flag = True
@@ -129,7 +135,7 @@ def std_subfun(mean_img, mapfile_df, img_shape, FORMAT):
             print(f"Processed {idx} images.")
 
         # subtract img from mean_img and square the difference
-        img_norm = (img/255.0).astype(dtype=np.float64)
+        img_norm = np.divide(img, 255.0).astype(dtype=np.float64)
         diff_img_norm = np.subtract(img_norm, mean_img)
         sq_diff_img_norm = np.power(diff_img_norm, 2)
 
