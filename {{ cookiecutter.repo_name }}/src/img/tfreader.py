@@ -5,16 +5,28 @@ import tensorflow as tf
 
 @tf.function
 def tf_imread(data_records):
-    # read the image from disk, decode it, resize it, and scale the
-    # pixels intensities to the range [0, 1]. NOTE: 'convert_image_dtype'
-    # converts between data types, automatically scaling the values
-    # based on the MAX of the input dtype
+    """read the image from disk, decode it, resize it, and scale the
+    pixels intensities to the range [0, 1]. NOTE: 'convert_image_dtype'
+    converts between data types, automatically scaling the values
+    based on the MAX of the input dtype"""
 
     image_raw = tf.io.read_file(data_records[0])
     image = tf.image.decode_png(image_raw)
     image = tf.image.convert_image_dtype(image, dtype=tf.float32)
     label = tf.strings.to_number(data_records[1], tf.int32)
     return image, label
+
+
+def tf_imread_predict(data_records):
+    """read the image from disk, decode it, resize it, and scale the
+    pixels intensities to the range [0, 1]. NOTE: 'convert_image_dtype'
+    converts between data types, automatically scaling the values
+    based on the MAX of the input dtype"""
+
+    image_raw = tf.io.read_file(data_records[0])
+    image = tf.image.decode_png(image_raw)
+    image = tf.image.convert_image_dtype(image, dtype=tf.float32)
+    return image
 
 
 @tf.function
