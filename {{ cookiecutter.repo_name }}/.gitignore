@@ -97,3 +97,6 @@ target/
 
 # venv
 /venv/
+
+# test data
+/test_data/
