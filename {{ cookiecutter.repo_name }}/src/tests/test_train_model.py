@@ -37,7 +37,7 @@ def output_filename():
 
 @pytest.fixture
 def test_params():
-    return "./src/tests/test_data/test_params.yaml"
+    return "./src/tests/test_data/mnist_small/params.yaml"
 
 
 @pytest.fixture
