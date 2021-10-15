@@ -13,7 +13,6 @@ numpy~=1.19.2
 PyYAML>=5.4
 scikit-learn~=0.24.0
 hyperopt~=0.2.5
-pytest~=6.2.2
 tableone~=0.7.10
 requests~=2.25.1
 Keras~=2.4.3
@@ -23,9 +22,6 @@ pillow==8.2.0
 opencv-contrib-python~=4.5.2.52
 {% if cookiecutter.python_interpreter != 'python3' %}
 
-# code formatting
-black~=3.4.1
-black[d]~=3.4.1
 
 # backwards compatibility
 pathlib2
