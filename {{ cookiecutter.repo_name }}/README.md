@@ -18,7 +18,7 @@ Add Zenodo DOI after first release
 ## Getting started
 
 This repository uses [Data Version Control (DVC)](https://dvc.org/) to create a
-machine learning pipeline and track experiments. We will use a modified version
+machine learning pipeline to track experiments. We will use a modified version
 of the [Team Data Science Process](https://docs.microsoft.com/en-us/azure/machine-learning/team-data-science-process/overview)
 as our Data Science Life cycle template. This repository template is based on the
 [cookiecutter data-science project template](https://drivendata.github.io/cookiecutter-data-science).
@@ -39,7 +39,7 @@ source venv/bin/activate
 
 # install requirements
 pip3 install -r requirements.txt
-pip3 install .
+pip3 install -e .
 
 # pull data from origin (https://dagshub.com/{{ cookiecutter.github_username }}/{{ cookiecutter.repo_name }})
 dvc init
@@ -71,27 +71,61 @@ continuous), data range, as well as a table with key descriptive summary statist
 3. Data dictionary
 4. Summary table of raw dataset
 
-#### Downloading the dataset
+#### Preparing the dataset
 
-The script [make_dataset.py](src/data/make_dataset.py) will download the dataset from Kaggle, create a data dictionary,
-and summarize the dataset using [TableOne](https://pypi.org/project/tableone/). The key artifacts of this DVC stage are
-the [raw training and testing datasets](data/raw), the [data_dictionary](reports/figures/data_dictionary.tex), and
-the [summary table](/reports/figures/table_one.tex).
-
-In your terminal, use the command-line interface to build the first stage of the pipeline.
+Once the question, data sources, and data dictionaries have been defined,
+we will place the raw data under version control with dvc using ```dvc add```.
+In your terminal, use the dvc command-line interface to add the raw 
+immutable data.
 
 ``` bash
-dvc run -n make_dataset -p color_mode,target_size \
--d src/data/make_dataset.py \
--d data/raw \
--o data/interim/label_encoding.yaml \
--o data/interim/mapfile_df.csv \
--o data/interim/mean_image.png \
--o data/processed/split_train_dev.csv \
---desc "Data processing script to create a mapfile from the specified data directory, split into train/dev/test, and compute the mean image"\
- python3 src/data/make_dataset.py "data/raw" "data/processed" "mapfile_df.csv" --force
+dvc add data/raw/nerve/data data/raw/nerve/mask \ 
+--desc "Add raw data to version control"\
+
+# add .dvc file to version control 
+git add -f data/raw/nerve/mask.dvc data/raw/nerve/data.dvc
 ```
 
+Now, create a stage to break images into smaller tiles using a custom shell script.
+``` bash
+dvc run -n split_images \
+-d src/data/split_images.sh \
+-d data/raw/nerve/data \
+-d data/raw/nerve/mask \
+-o data/processed/nerve/data \
+-o data/processed/nerve/mask \
+--desc "Shell script to split images into 256x256 tiles and save in data/processed/"\
+bash src/data/split_images.sh
+
+git add dvc.yaml dvc.lock
+```
+
+The next stage will create the mapfile, compute the mean and std images, and create train/test splits.
+``` bash
+dvc run -n make_nerve_dataset -p color_mode,save_format,segmentation,target_size \
+-d src/data/make_dataset.py \
+-d data/processed/nerve/data \
+-d data/processed/nerve/mask \
+-o data/processed/nerve/mapfile_df.csv \
+-o data/processed/nerve/split_train_dev.csv \
+-o data/processed/nerve/mean_image.png \
+-o data/processed/nerve/std_image.png \
+--desc "Create a mapfile from the directories, compute the mean and std image, and split into train/dev/test sets." \
+python3 src/data/make_dataset.py data/processed/nerve/ data/processed/nerve/ mapfile_df.csv -p params.yaml --force
+```
+
+We will use the mapfile and train/dev splits to train a model in the next stage.
+``` bash
+dvc run -n train_nerve_seg -p color_mode,mean_img,std_img,train_model,random_seed,segmentation,target_size,n_classes \
+-d src/models/train_model.py \
+-d data/processed/nerve/mapfile_df.csv \
+-d data/processed/nerve/split_train_dev.csv \
+-d data/processed/nerve/mean_image.png \
+-d data/processed/nerve/std_image.png \
+-o models/ \
+--desc "Train a model using the mapfile and train/dev splits." \
+python3 src/models/train_model.py data/processed/nerve/mapfile_df.csv data/processed/nerve/split_train_dev.csv -p params.yaml --model-name nerve_seg
+```
 
 ## Project Organization
 ------------
