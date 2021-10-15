@@ -2,6 +2,7 @@
 
 import os
 import logging
+import numpy as np
 from pathlib import Path
 
 import pandas as pd
@@ -14,6 +15,7 @@ def split(
     mapfile_df,
     output_dir=None,
     output_filename="split_train_dev.csv",
+    params=None,
 ):
     """Accept a Pandas DataFrame with image filenames and labels,
     split into train, test, and dev sets and save file.
@@ -30,14 +32,19 @@ def split(
     # set index
     mapfile_df.index.name = "index"
 
-    # get filenames and dependent variables (class)
-    train_class = mapfile_df["class"]
-    train_files = mapfile_df["filename"]
-
     # load params
-    params = load_params()
+    if params is None:
+        params = load_params()
+
     params_split = params["train_test_split"]
     params_split["random_seed"] = params["random_seed"]
+
+    # get filenames and dependent variables (class)
+    train_files = mapfile_df["filename"]
+    if params["segmentation"]:
+        train_class = np.ones(len(mapfile_df["class"]), dtype=np.int32)
+    else:
+        train_class = mapfile_df["class"]
 
     # K-fold split into train and dev sets stratified by train_labels
     # using random seed for reproducibility
@@ -47,7 +54,7 @@ def split(
         shuffle=params_split["shuffle"],
     )
 
-    # create splits
+    # create splits stratified by labels in train_class
     split_df = pd.DataFrame()
     for n_fold, (train_idx, test_idx) in enumerate(skf.split(train_files, train_class)):
         fold_name = f"fold_{n_fold + 1:02d}"

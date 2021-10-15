@@ -49,7 +49,7 @@ class TestMapfile:  # input_dir, output_dir, output_filename
         Test that each image is a test for one and only one cross-
         validation fold. Also tests file saving"""
 
-        split_df = mapfile.split(mapfile_df, output_dir)
+        split_df = mapfile.split(mapfile_df, output_dir, params=None)
 
         # each image should be a test for one and only one fold
         assert (

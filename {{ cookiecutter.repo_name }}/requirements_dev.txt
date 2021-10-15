@@ -1,0 +1,10 @@
+# local package
+-e .
+
+# external requirements
+pytest~=6.2.2
+pytest-randomly
+
+# code formatting
+black~=3.4.1
+black[d]~=3.4.1

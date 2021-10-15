@@ -2,13 +2,14 @@
 
 import logging
 import os
+import numpy as np
 from pathlib import Path
 
 import click
 from dotenv import find_dotenv, load_dotenv
 
 # load custom libraries from src
-from src.data import mapfile, load_params
+from src.data import mapfile, load_params, save_params
 from src.img import compute_mean
 
 # set tf warning options
@@ -28,18 +29,29 @@ def create(
     mapping the image filepath to integer class labels, which is saved in
     OUTPUT_DIR.
     """
-
-    # create mapfile_df
-    mapfile_df = mapfile.create(input_dir, output_dir, output_filename, na_rep)
-    mapfile_path = str(Path(output_dir).joinpath(output_filename).resolve())
+    # fix output_filename file extension if not given
+    output_filename = Path(output_filename)
+    if output_filename.suffix.lower() != ".csv":
+        output_filename = output_filename.stem + ".csv"
 
     # load params_filepath
     params = load_params(params_filepath)
     img_shape = tuple(params["target_size"])
     grayscale = params["color_mode"].lower() == "grayscale"
 
+    # create mapfile_df
+    mapfile_df = mapfile.create(
+        input_dir,
+        output_dir,
+        output_filename=output_filename,
+        na_rep=na_rep,
+        segmentation=params["segmentation"],
+        save_format=params["save_format"],
+    )
+    mapfile_path = str(Path(output_dir).joinpath(output_filename).resolve())
+
     # compute mean image
-    compute_mean.image(
+    mean_img, std_img = compute_mean.image(
         mapfile_path,
         img_shape=img_shape,  # TODO
         grayscale=grayscale,
@@ -47,8 +59,14 @@ def create(
         # params_filepath=params_filepath,
     )
 
+    #
+    params["mean_img"] = [float(elem) for elem in np.mean(mean_img, axis=tuple(range(2))) / 255.0]
+    params["std_img"] = [float(elem) for elem in np.mean(std_img, axis=tuple(range(2))) / 255.0]
+    # save parameters
+    save_params(params, filepath=params_filepath)
+
     # split train test dev
-    mapfile.split(mapfile_df, "./data/processed")
+    mapfile.split(mapfile_df, output_dir, params=params)
     return mapfile_df
 
 

@@ -63,12 +63,12 @@ def load_data(data_path, sep=",", header=None, index_col=None, dtype=None) -> ob
     Returns:
         object:
     """
-    for elem in data_path:
-        assert Path(elem).is_file(), FileNotFoundError
-
     # if single path as str, convert to list of str
     if type(data_path) is str:
         data_path = [data_path]
+
+    for elem in data_path:
+        assert Path(elem).is_file(), FileNotFoundError(f"{elem}")
 
     # loop over filepath in list and read file
     output_df = [
