@@ -3,6 +3,7 @@
 import os
 import click
 from dotenv import find_dotenv, load_dotenv
+from codetiming import Timer
 import logging
 from pathlib import Path
 
@@ -16,11 +17,11 @@ import cv2
 
 
 # load custom libraries from src
-from src.data import mapfile, load_data
+from src.data import mapfile, load_data, save_metrics
 from src.img.tfreader import tf_imread, tf_imreadpair, tf_dataset
 from src.img.augment import apply_transforms, apply_transforms_pair
 from src.data import load_params
-from src.models import networks
+from src.models import networks, train_callbacks
 
 # set tf warning options
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
@@ -32,6 +33,8 @@ def train(
     params_filepath="params.yaml",
     model_dir="./models",
     model_name="model",
+    results_dir="./results",
+    metrics_filepath="metrics.json",
     debug=False,
 ):
     """Accept filepaths to the mapfile and train-dev split, train mode, and return
@@ -60,10 +63,103 @@ def train(
 
     # set random seed
     tf.random.set_seed(random_seed)
+    logger.info(
+        f"Debug mode activated. No data augmentation or shuffling"
+    ) if debug else None
+
+    # create generator with cv splits
+    split_generator = iter(
+        (np.where(cv_idx[col] == "train")[0], np.where(cv_idx[col] == "test")[0])
+        for col in cv_idx
+    )
+
+    # get first CV fold
+    train_idx, val_idx = next(split_generator)
+
+    # create train and validation datasets
+    train_dataset = create_dataset(mapfile_df.iloc[train_idx], params)
+    val_dataset = create_dataset(mapfile_df.iloc[val_idx], params)
+
+    # create model
+    if params["segmentation"]:
+        model = networks.unet_xception(input_shape=target_size, n_classes=n_classes)
+        optimizer = tf.keras.optimizers.Adam(0.001)
+        model.compile(
+            optimizer=optimizer,
+            loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
+            metrics=["accuracy"],
+        )
+        # print(model.summary())
+    else:
+        model = networks.simple_nn(
+            input_shape=target_size, n_classes=n_classes, debug=debug
+        )
+        model.compile(
+            optimizer=tf.keras.optimizers.Adam(0.001),
+            loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+            metrics=[tf.keras.metrics.SparseCategoricalAccuracy()],
+        )
+
+    # set callbacks
+    callbacks = train_callbacks.set(params_filepath=params_filepath)
+
+    # train model and compute overall training time
+    t = Timer(name="Training", text="{name}: {:.4f} seconds", logger=None)
+    t.start()
+    logger.info(f"Training model for {epochs} epochs")
+    history = model.fit(
+        train_dataset,
+        batch_size=batch_size,
+        steps_per_epoch=np.floor(len(train_idx) / batch_size).astype(np.int),
+        validation_data=val_dataset,
+        validation_steps=np.floor(len(val_idx) / batch_size).astype(np.int),
+        epochs=epochs,
+        callbacks=[callbacks],
+        verbose=1,
+    )
+    elapsed_time = t.stop()
+    total_epochs = len(history.history["loss"])
+    logger.info(f"Trained for {total_epochs} epochs in {elapsed_time:.4f} seconds")
+
+    # update metrics.json
+    metrics_filepath = Path(results_dir).joinpath(f"{metrics_filepath}")
+    metrics = {
+        "time": elapsed_time,
+        "epochs": total_epochs,
+        "loss": history.history["loss"][-1],
+        "accuracy": history.history["accuracy"][-1],
+        "val_loss": history.history["val_loss"][-1],
+        "val_accuracy": history.history["val_accuracy"][-1],
+        "n_images": mapfile_df.shape[0],
+    }
+    save_metrics(metrics, metrics_filepath)
+
+    # save model
+    model_filename = Path(model_dir).joinpath(f"{model_name}_{total_epochs:03d}")
+    model.save(model_filename, save_format="tf")
+
+    return history
+
+
+def create_dataset(
+    mapfile_df,
+    params,
+    debug=False,
+):
+    """ """
 
     # create dataset using tf.data
     data_records = [list(elem) for elem in mapfile_df.to_records(index=False)]
     dataset = tf.data.Dataset.from_tensor_slices(data_records)
+
+    # set params
+    batch_size = params["train_model"]["batch_size"]
+    random_seed, target_size, mean_img, std_img = (
+        params["random_seed"],
+        params["target_size"],
+        params["mean_img"],
+        params["std_img"],
+    )
 
     # build tf.data pipeline
     if params["segmentation"]:
@@ -78,8 +174,6 @@ def train(
                 ),
                 num_parallel_calls=AUTOTUNE,
             )
-        else:
-            logger.info(f"Debug mode activated. No data augmentation or shuffling")
     else:
         dataset = dataset.map(
             tf_imread,
@@ -91,8 +185,6 @@ def train(
                 lambda x, y: apply_transforms(x, y, input_shape=target_size),
                 num_parallel_calls=AUTOTUNE,
             )
-        else:
-            logger.info(f"Debug mode activated. No data augmentation or shuffling")
 
     # # apply transforms except while debugging
     # if not debug:
@@ -118,45 +210,7 @@ def train(
         .prefetch(AUTOTUNE)
     )
 
-    # create model
-    if params["segmentation"]:
-        model = networks.unet_xception(input_shape=target_size, n_classes=n_classes)
-        optimizer = tf.keras.optimizers.Adam(0.001)
-        model.compile(
-            optimizer=optimizer,
-            loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
-            metrics=["accuracy"],
-        )
-        # print(model.summary())
-    else:
-        model = networks.simple_nn(
-            input_shape=target_size, n_classes=n_classes, debug=debug
-        )
-        model.compile(
-            optimizer=tf.keras.optimizers.Adam(0.001),
-            loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-            metrics=[tf.keras.metrics.SparseCategoricalAccuracy()],
-        )
-
-    # train model
-    logger.info(f"Training model for {epochs} epochs")
-    history = model.fit(
-        dataset, steps_per_epoch=mapfile_df.shape[0], epochs=epochs, verbose=1
-    )
-
-    # save model
-    model_filename = Path(model_dir).joinpath(f"{model_name}_{epochs:03d}")
-    # results_filename = Path(results_dir).joinpath(f"{model_name}_{epochs}")
-
-    # norm = np.zeros(img_predict.shape)
-    # img_predict2 = cv2.normalize(img_predict, norm, 0, 255, cv2.NORM_MINMAX).astype(
-    #     np.uint8
-    # )
-    # cv2.imwrite(str(img_filepath), img_predict2)
-
-    model.save(model_filename, save_format="tf")
-
-    return history
+    return dataset
 
 
 @click.command()

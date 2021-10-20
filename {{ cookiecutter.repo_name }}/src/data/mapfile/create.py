@@ -107,6 +107,8 @@ def segmentation_dir(input_dir, save_format=".png"):
         mask_dir = input_dir.joinpath(mask_prefix, "*" + file_ext)
         mask_filepaths += sorted(glob(str(mask_dir)))
 
+    # TODO - check EXIF to ensure all are grayscale
+
     # sort
     image_filepaths = sorted(image_filepaths)
     mask_filepaths = sorted(mask_filepaths)

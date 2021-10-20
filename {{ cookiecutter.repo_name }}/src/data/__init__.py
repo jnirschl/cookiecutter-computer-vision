@@ -2,6 +2,7 @@
 
 __all__ = ["mapfile"]
 
+import json
 import os
 from pathlib import Path
 
@@ -113,3 +114,37 @@ def save_as_csv(
         temp_df.to_csv(save_filepath, na_rep=na_rep)
         if output_path:
             return save_filepath
+
+
+def load_metrics(filepath="results/metrics.json") -> dict:
+    """Helper function to load metrics.json
+
+    Args:
+        filepath (str): filename or full filepath to json file with metrics
+
+    Returns:
+        dict: dictionary of metrics
+    """
+
+    assert os.path.isfile(filepath), FileNotFoundError
+
+    # read params.yaml
+    with open(filepath, "r") as file:
+        metrics = json.load(file)
+
+    return metrics
+
+
+def save_metrics(metrics, filepath="results/metrics.json") -> dict:
+    """Helper function to save metrics.json
+
+    Args:
+        metrics (dict): dict containing with metrics
+        filepath (str): filename or full filepath to save json file with metrics.
+    """
+
+    assert type(metrics) is type({}), TypeError("Expected metrics to be type dict")
+
+    # read params.yaml
+    with open(filepath, "w") as write_file:
+        json.dump(metrics, write_file)

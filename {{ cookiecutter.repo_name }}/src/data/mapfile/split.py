@@ -15,7 +15,7 @@ def split(
     mapfile_df,
     output_dir=None,
     output_filename="split_train_dev.csv",
-    params=None,
+    params_filepath="params.yaml",
 ):
     """Accept a Pandas DataFrame with image filenames and labels,
     split into train, test, and dev sets and save file.
@@ -33,8 +33,7 @@ def split(
     mapfile_df.index.name = "index"
 
     # load params
-    if params is None:
-        params = load_params()
+    params = load_params(filepath=params_filepath)
 
     params_split = params["train_test_split"]
     params_split["random_seed"] = params["random_seed"]

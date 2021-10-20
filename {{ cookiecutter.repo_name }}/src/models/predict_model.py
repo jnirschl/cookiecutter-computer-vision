@@ -100,7 +100,14 @@ def predict(
     )
 
     # set output filepath
+    if not Path(results_dir).exists:
+        print("Directory not exists!")
+        return
+    
     img_filepath = Path(results_dir).joinpath("test_image.png")
+
+    # test filepath
+    Path("nerve_0000.png").resolve()
 
     test_img = dataset.take(60)
     img_predict = model.predict(dataset)
@@ -131,7 +138,7 @@ def predict(
 @click.command()
 @click.argument(
     "mapfile_path",
-    default=Path("./data/interim/mapfile_df.csv").resolve(),
+    default=Path("./data/processed/mapfile_df.csv").resolve(),
     type=click.Path(exists=True),
     # help="Filepath to the CSV with image filenames and class labels.",
 )

@@ -83,15 +83,12 @@ def mean_subfun(mapfile_df, img_shape, FORMAT):
         # ensure image is valid
         if img is None:
             raise ValueError(f"Error loading image:\t{filename}")
-        if idx % 1000 == 0 and idx > 0:
-            print(f"Processed {idx} images.")
 
         # accumulate
         mean_img = cv2.accumulate(img.astype(dtype=np.float32), mean_img)
 
     logger = logging.getLogger(__name__)
     logger.info(f"Processed {idx+1} images.")
-    print(f"Processed {idx+1} images.")
 
     # divide by n_images
     mean_img = np.divide(mean_img, idx + 1).astype(np.uint8)
@@ -131,8 +128,6 @@ def std_subfun(mean_img, mapfile_df, img_shape, FORMAT):
         # ensure image is valid
         if img is None:
             raise ValueError(f"Error loading image:\t{filename}")
-        if idx % 1000 == 0 and idx > 0:
-            print(f"Processed {idx} images.")
 
         # subtract img from mean_img and square the difference
         img_norm = np.divide(img, 255.0).astype(dtype=np.float64)
@@ -144,7 +139,6 @@ def std_subfun(mean_img, mapfile_df, img_shape, FORMAT):
 
     logger = logging.getLogger(__name__)
     logger.info(f"Processed {idx+1} images.")
-    print(f"Processed {idx+1} images.")
 
     # divide by n_images
     std_img_float = np.sqrt(np.divide(std_img, idx + 1))
