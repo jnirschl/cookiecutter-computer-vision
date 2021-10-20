@@ -2,7 +2,6 @@
 -e .
 
 # external requirements
-pytest~=6.2.2
 pytest-randomly
 
 # code formatting
