@@ -66,7 +66,7 @@ def create(
     save_params(params, filepath=params_filepath)
 
     # split train test dev
-    mapfile.split(mapfile_df, output_dir, params=params)
+    mapfile.split(mapfile_df, output_dir=output_dir, params_filepath=params_filepath)
     return mapfile_df
 
 
