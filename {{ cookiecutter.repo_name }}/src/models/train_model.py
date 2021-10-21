@@ -31,11 +31,10 @@ def train(
     mapfile_path,
     cv_idx_path,
     params_filepath="params.yaml",
-    model_dir="./models",
+    model_dir="./models/dev",
     model_name="model",
     results_dir="./results",
-    metrics_filepath="metrics.json",
-    debug=False,
+    metrics_file="metrics.json",
 ):
     """Accept filepaths to the mapfile and train-dev split, train mode, and return
     training history."""
@@ -44,28 +43,26 @@ def train(
     # start logger
     logger = logging.getLogger(__name__)
 
-    # read files
-    mapfile_df, cv_idx = load_data(
-        [mapfile_path, cv_idx_path], sep=",", header=0, index_col=0, dtype=str
-    )
-
     # load params
     params = load_params(params_filepath)
     train_params = params["train_model"]
-    random_seed, target_size, n_classes, mean_img, std_img = (
+    random_seed, target_size, n_classes, mean_img, std_img, deterministic = (
         params["random_seed"],
         params["target_size"],
         params["n_classes"],
         params["mean_img"],
         params["std_img"],
+        params["deterministic"],
     )
-    batch_size, epochs = train_params["batch_size"], train_params["epochs"]
 
-    # set random seed
-    tf.random.set_seed(random_seed)
     logger.info(
-        f"Debug mode activated. No data augmentation or shuffling"
-    ) if debug else None
+        f"Deterministic mode activated. Data augmentation and shuffle off."
+    ) if deterministic else None
+
+    # read files
+    mapfile_df, cv_idx = load_data(
+        [mapfile_path, cv_idx_path], sep=",", header=0, index_col=0, dtype=str
+    )
 
     # create generator with cv splits
     split_generator = iter(
@@ -77,8 +74,17 @@ def train(
     train_idx, val_idx = next(split_generator)
 
     # create train and validation datasets
-    train_dataset = create_dataset(mapfile_df.iloc[train_idx], params)
-    val_dataset = create_dataset(mapfile_df.iloc[val_idx], params)
+    train_dataset = create_dataset(mapfile_df.iloc[train_idx], params, logger)
+    val_dataset = create_dataset(mapfile_df.iloc[val_idx], params, logger)
+
+    # set batch size, epochs, and steps per epoch
+    batch_size, epochs = train_params["batch_size"], train_params["epochs"]
+    train_steps_per_epoch = np.floor(len(train_idx) / batch_size).astype(np.int)
+    val_steps_per_epoch = np.floor(len(val_idx) / batch_size).astype(np.int)
+
+    # set random seed
+    np.random.seed(random_seed)
+    tf.random.set_seed(random_seed)
 
     # create model
     if params["segmentation"]:
@@ -89,10 +95,9 @@ def train(
             loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
             metrics=["accuracy"],
         )
-        # print(model.summary())
     else:
         model = networks.simple_nn(
-            input_shape=target_size, n_classes=n_classes, debug=debug
+            input_shape=target_size, n_classes=n_classes, deterministic=deterministic
         )
         model.compile(
             optimizer=tf.keras.optimizers.Adam(0.001),
@@ -110,9 +115,9 @@ def train(
     history = model.fit(
         train_dataset,
         batch_size=batch_size,
-        steps_per_epoch=np.floor(len(train_idx) / batch_size).astype(np.int),
+        steps_per_epoch=train_steps_per_epoch,
         validation_data=val_dataset,
-        validation_steps=np.floor(len(val_idx) / batch_size).astype(np.int),
+        validation_steps=val_steps_per_epoch,
         epochs=epochs,
         callbacks=[callbacks],
         verbose=1,
@@ -122,20 +127,28 @@ def train(
     logger.info(f"Trained for {total_epochs} epochs in {elapsed_time:.4f} seconds")
 
     # update metrics.json
-    metrics_filepath = Path(results_dir).joinpath(f"{metrics_filepath}")
+    results_dir = Path(results_dir).resolve()
+    metrics_filepath = results_dir.joinpath(f"{metrics_file}")
     metrics = {
         "time": elapsed_time,
         "epochs": total_epochs,
+        "iterations": int(total_epochs * train_steps_per_epoch),
         "loss": history.history["loss"][-1],
         "accuracy": history.history["accuracy"][-1],
         "val_loss": history.history["val_loss"][-1],
         "val_accuracy": history.history["val_accuracy"][-1],
         "n_images": mapfile_df.shape[0],
+        "n_train": len(train_idx),
+        "n_val": len(val_idx),
     }
-    save_metrics(metrics, metrics_filepath)
+    save_metrics(metrics, str(metrics_filepath))
 
     # save model
-    model_filename = Path(model_dir).joinpath(f"{model_name}_{total_epochs:03d}")
+    model_dir = Path(model_dir).resolve()
+    model_filename = model_dir.joinpath(f"{model_name}_{total_epochs:03d}")
+    if not model_dir.exists():
+        model_dir.mkdir()
+
     model.save(model_filename, save_format="tf")
 
     return history
@@ -144,9 +157,10 @@ def train(
 def create_dataset(
     mapfile_df,
     params,
-    debug=False,
+    logger,
 ):
-    """ """
+    """Accepts mapfile_df as Pandas DataFrame, dictionary of parameters, and logger and returns
+    a Tensorflow Dataset instance"""
 
     # create dataset using tf.data
     data_records = [list(elem) for elem in mapfile_df.to_records(index=False)]
@@ -154,20 +168,21 @@ def create_dataset(
 
     # set params
     batch_size = params["train_model"]["batch_size"]
-    random_seed, target_size, mean_img, std_img = (
+    random_seed, target_size, mean_img, std_img, deterministic = (
         params["random_seed"],
         params["target_size"],
         params["mean_img"],
         params["std_img"],
+        params["deterministic"],
     )
 
-    # build tf.data pipeline
+    # build tf.data pipeline - map transforms before caching
     if params["segmentation"]:
         dataset = dataset.map(
             tf_imreadpair,
             num_parallel_calls=AUTOTUNE,
         )
-        if not debug:
+        if not deterministic:
             dataset = dataset.map(
                 lambda x, y: apply_transforms_pair(
                     x, y, input_shape=target_size, mean=mean_img, std=std_img
@@ -179,33 +194,31 @@ def create_dataset(
             tf_imread,
             num_parallel_calls=AUTOTUNE,
         )
-        # apply transforms except while debugging
-        if not debug:
+        # apply transforms except under deterministic mode
+        if not deterministic:
             dataset = dataset.map(
                 lambda x, y: apply_transforms(x, y, input_shape=target_size),
                 num_parallel_calls=AUTOTUNE,
             )
 
-    # # apply transforms except while debugging
-    # if not debug:
-    #     dataset = dataset.map(
-    #         lambda x, y: apply_transforms_pair(x, y, input_shape=target_size),
-    #         num_parallel_calls=AUTOTUNE,
-    #     )
-
-    dataset = (
-        dataset.cache()  # cache after mapping
-        .shuffle(  # shuffle after caching to randomize order TODO - turn off with debug
+    # cache before shuffle to randomize order
+    dataset = dataset.cache()
+    if not deterministic:
+        dataset = dataset.shuffle(
             buffer_size=mapfile_df.shape[0],
             seed=random_seed,
             reshuffle_each_iteration=True,
         )
-        .repeat()  # infinite cardinality
+
+    # apply repeat after shuffle to show every example of one epoch before moving to the next
+    # otherwise, a repeat before shuffle will mix epoch boundaries together
+    dataset = (
+        dataset.repeat()  # infinite cardinality
         .batch(
             batch_size=batch_size,
             drop_remainder=True,
             num_parallel_calls=AUTOTUNE,
-            deterministic=debug,
+            deterministic=deterministic,
         )
         .prefetch(AUTOTUNE)
     )
@@ -216,7 +229,7 @@ def create_dataset(
 @click.command()
 @click.argument(
     "mapfile_path",
-    default=Path("./data/interim/mapfile_df.csv").resolve(),
+    default=Path("./data/processed/mapfile_df.csv").resolve(),
     type=click.Path(exists=True),
     # help="Filepath to the CSV with image filenames and class labels.",
 )
@@ -227,42 +240,35 @@ def create_dataset(
     # help="Filepath to the CSV with the cross validation train/dev splits.",
 )
 @click.option("--params_filepath", "-p", default="params.yaml")
-# @click.option(
-#     "--results-dir",
-#     default=Path("./results").resolve(),
-#     type=click.Path(),
-# )
+@click.option(
+    "--results-dir",
+    default=Path("./results").resolve(),
+    type=click.Path(),
+)
 @click.option(
     "--model-dir",
-    default=Path("./models").resolve(),
+    default=Path("./models/dev").resolve(),
     type=click.Path(),
 )
 @click.option(
     "--model-name",
     default="model",
 )
-@click.option(
-    "--debug",
-    is_flag=True,
-    help="Debug switch that turns off augmentation, shuffle, and makes runs deterministic.",
-)
 def main(
     mapfile_path,
     cv_idx_path,
     params_filepath="params.yaml",
-    # results_dir="./results",
+    results_dir="./results",
     model_dir="./models",
     model_name="model",
-    debug=False,
 ):
     train(
         mapfile_path,
         cv_idx_path,
         params_filepath=params_filepath,
-        # results_dir=results_dir,
+        results_dir=results_dir,
         model_dir=model_dir,
         model_name=model_name,
-        debug=debug,
     )
 
 

@@ -7,138 +7,75 @@ from dotenv import find_dotenv, load_dotenv
 import logging
 import numpy as np
 from pathlib import Path
-import pandas as pd
-import skimage.io as io
-
-# import cv2
-# import numpy as np
-# import pandas as pd
-# import skimage.io as io
 
 import tensorflow as tf
-from tensorflow.data import AUTOTUNE
 
+from MightyMosaic import MightyMosaic
 
 # load custom libraries from src
-from src.data import mapfile, load_data
-from src.img.tfreader import tf_imread, tf_imread_predict, tf_imreadpair, tf_dataset
-from src.img.augment import apply_transforms, tf_standardize, tf_normalize
 from src.data import load_params
-from src.models import networks
 
 # set tf warning options
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 
 def predict(
-    mapfile_path,
+    input_dir,
     model_path,
     params_filepath="params.yaml",
     results_dir="./results",
-    debug=False,
+    file_ext="png",
+    overlap_factor=4,
 ):
-    """Accept filepaths to the mapfile, load model and predict ouputs."""
-    assert type(mapfile_path) is str, TypeError(f"MAPFILE must be type STR")
+    """Accept input directory and trained model, and save predicted ouput images."""
+
+    # resolve directories
+    input_dir = Path(input_dir).resolve()
+    model_path = Path(model_path).resolve()
+    results_dir = Path(results_dir).resolve()
+
+    assert input_dir.exists(), NotADirectoryError(f"{input_dir}")
+    assert model_path.exists(), NotADirectoryError(f"{model_path}")
 
     # start logger
     logger = logging.getLogger(__name__)
-
-    # read files
-    mapfile_df = load_data(mapfile_path, sep=",", header=0, index_col=0, dtype=str)
 
     # load model
     model = tf.keras.models.load_model(model_path)
 
     # load params
     params = load_params(params_filepath)
-    train_params = params["train_model"]
-    random_seed, target_size, n_classes, mean_img, std_img = (
-        params["random_seed"],
+    target_size, mean_img, std_img = (
         params["target_size"],
-        params["n_classes"],
         params["mean_img"],
         params["std_img"],
     )
-    batch_size, epochs = train_params["batch_size"], train_params["epochs"]
 
-    # create dataset using tf.data
-    data_records = [list(elem) for elem in mapfile_df.to_records(index=False)]
-    dataset = tf.data.Dataset.from_tensor_slices(data_records)
+    file_list = input_dir.glob("*." + file_ext.replace(".", ""))
+    for file in file_list:
+        temp_filepath = Path(file).resolve()
+        if temp_filepath.is_file():
+            img = cv2.imread(str(temp_filepath), cv2.IMREAD_COLOR)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            img_std = np.divide(np.subtract(img / 255, mean_img), std_img)
 
-    # build tf.data pipeline
-    if params["segmentation"]:
-        dataset = dataset.map(
-            tf_imread_predict,
-            num_parallel_calls=AUTOTUNE,
-        )
-    else:
-        dataset = dataset.map(
-            tf_imread,
-            num_parallel_calls=AUTOTUNE,
-        )
+            mosaic = MightyMosaic.from_array(
+                img_std, target_size[0:2], overlap_factor=overlap_factor
+            )
+            prediction = mosaic.apply(model.predict, progress_bar=True, batch_size=32)
+            pred_img = prediction.get_fusion()[:, :, 1]
+            pred_img = cv2.normalize(pred_img, None, 0, 255, cv2.NORM_MINMAX)
 
-    # pre-processing
-    dataset = dataset.map(
-        lambda x: (tf_standardize(x, mean=mean_img, std=std_img)),
-        num_parallel_calls=AUTOTUNE,
-    )
+            out_filepath = str(results_dir.joinpath(file.name))
+            cv2.imwrite(out_filepath, pred_img)
 
-    # # pre-processing
-    # dataset = dataset.map(
-    #     lambda x, y: (
-    #         tf_standardize(x, mean=mean_img, std=std_img),
-    #         y,
-    #     ),
-    #     num_parallel_calls=AUTOTUNE,
-    # )
-
-    dataset = dataset.cache().batch(  # cache after mapping
-        batch_size=batch_size,
-        drop_remainder=True,
-        # num_parallel_calls=AUTOTUNE,
-        deterministic=debug,
-    )
-
-    # set output filepath
-    if not Path(results_dir).exists:
-        print("Directory not exists!")
-        return
-    
-    img_filepath = Path(results_dir).joinpath("test_image.png")
-
-    # test filepath
-    Path("nerve_0000.png").resolve()
-
-    test_img = dataset.take(60)
-    img_predict = model.predict(dataset)
-    for idx in range(mapfile_df.shape[0]):
-        temp_img = img_predict[idx]
-        # img_filepath = Path("./results").joinpath(f"test_image_{idx:03d}.png")
-        img_filepath = Path("./results").joinpath(
-            mapfile_df["filename"][idx].replace(".png", "_mask.png")
-        )
-        cv2.imwrite(str(img_filepath), (temp_img[:, :, 1] * 255).astype(np.uint8))
-        # print(f"min={np.min(img_predict[:])}\nmax={np.max(img_predict[:])}")
-
-    # # predict single image
-    # test_img = dataset.take(1)
-    # img_predict = model.predict(test_img)[0]
-    # print(f"min={np.min(img_predict[:])}\nmax={np.max(img_predict[:])}")
-    # img_predict = (img_predict[:,:,1] * 255).astype(np.uint8)
-    # cv2.imwrite(str(img_filepath), img_predict)
-    # # norm = np.zeros(img_predict.shape)
-    # # img_predict2 = cv2.normalize(img_predict, norm, 0, 255, cv2.NORM_MINMAX).astype(
-    # #     np.uint8
-    # # )
-    # # cv2.imwrite(str(img_filepath), img_predict2)
-    # # cv2.imwrite(str(img_filepath).replace("test", "orig"), (test_img * 255).astype(np.uint8))
     return True
 
 
 @click.command()
 @click.argument(
-    "mapfile_path",
-    default=Path("./data/processed/mapfile_df.csv").resolve(),
+    "input_dir",
+    default=Path("./data/raw/data").resolve(),
     type=click.Path(exists=True),
     # help="Filepath to the CSV with image filenames and class labels.",
 )
@@ -147,29 +84,28 @@ def predict(
     type=click.Path(exists=True),
 )
 @click.option("--params_filepath", "-p", default="params.yaml")
-# @click.option(
-#     "--results-dir",
-#     default=Path("./results").resolve(),
-#     type=click.Path(),
-# )
+@click.option("--file_ext", default="png")
+@click.option("--overlap_factor", default=8)
 @click.option(
-    "--debug",
-    is_flag=True,
-    help="Debug switch that turns off augmentation, shuffle, and makes runs deterministic.",
+    "--results-dir",
+    default=Path("./results").resolve(),
+    type=click.Path(),
 )
 def main(
-    mapfile_path,
+    input_dir,
     model_path,
     params_filepath="params.yaml",
     results_dir="./results",
-    debug=False,
+    file_ext="png",
+    overlap_factor=4,
 ):
     predict(
-        mapfile_path,
+        input_dir,
         model_path,
         params_filepath=params_filepath,
         results_dir=results_dir,
-        debug=debug,
+        file_ext=file_ext,
+        overlap_factor=overlap_factor,
     )
 
 

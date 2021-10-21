@@ -3,10 +3,10 @@
 import tensorflow as tf
 
 
-def simple_nn(input_shape=(28, 28, 1), n_classes=10, debug=False):
+def simple_nn(input_shape=(28, 28, 1), n_classes=10, deterministic=False):
     """ """
 
-    if debug:
+    if deterministic:
         model = tf.keras.models.Sequential(
             [
                 tf.keras.layers.Flatten(input_shape=input_shape),
