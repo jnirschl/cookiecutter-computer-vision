@@ -40,16 +40,16 @@ def tf_resize_pair(img, mask, height, width, resize_method=image.ResizeMethod.BI
     return img, mask
 
 
-def random_crop(img, IMG_HEIGHT=224, IMG_WIDTH=224):
+def random_crop(img, IMG_HEIGHT=224, IMG_WIDTH=224, IMG_CH=3):
     """Accept and image as tf.data.tensor_slices and returns
     the image with random cropping applied"""
-    return tf.image.random_crop(img, size=[1, IMG_HEIGHT, IMG_WIDTH, 3])
+    return tf.image.random_crop(img, size=[1, IMG_HEIGHT, IMG_WIDTH, IMG_CH])
 
 
-def random_crop_pair(img, mask, IMG_HEIGHT=224, IMG_WIDTH=224):
+def random_crop_pair(img, mask, IMG_HEIGHT=224, IMG_WIDTH=224, IMG_CH=3):
     """Accept and image and mask pair as tf.data.tensor_slices and return
     the image pair with identical random cropping applied"""
-    mask = tf.concat([mask, mask, mask], axis=2)
+    mask = tf.concat([mask] * IMG_CH, axis=2)
 
     stack_imgs = tf.stack([img, mask], axis=0)
 
@@ -69,7 +69,7 @@ def random_crop_pair(img, mask, IMG_HEIGHT=224, IMG_WIDTH=224):
         name="random_rotate",
     )
     crop_stack = tf.image.random_crop(
-        stack_imgs, size=[2, IMG_HEIGHT, IMG_WIDTH, 3], name="random_crop_pair"
+        stack_imgs, size=[2, IMG_HEIGHT, IMG_WIDTH, IMG_CH], name="random_crop_pair"
     )
 
     # set output
@@ -124,14 +124,23 @@ def apply_transforms_pair(img, mask, input_shape, mean, std, max_delta=0.2):
 
     # random crop
     img, mask = random_crop_pair(
-        img, mask, IMG_HEIGHT=input_shape[0], IMG_WIDTH=input_shape[1]
+        img,
+        mask,
+        IMG_HEIGHT=input_shape[0],
+        IMG_WIDTH=input_shape[1],
+        IMG_CH=input_shape[2],
     )
 
-    # random brightness, contrast, hue, and saturation
+    # random brightness, contrast
     img = tf.image.random_brightness(img, max_delta=max_delta)
     img = tf.image.random_contrast(img, 0.8, 1.5)
-    img = tf.image.random_hue(img, 0.1)
-    img = tf.image.random_saturation(img, 0.8, 1.2)
+
+    # random hue and saturation for rgb images
+    if input_shape[2] > 1:
+        img = tf.image.random_hue(img, 0.1)
+        img = tf.image.random_saturation(img, 0.8, 1.2)
+
+    # random jpg compression
     img = tf.image.random_jpeg_quality(img, 50, 90)
 
     # add random Gaussian noise

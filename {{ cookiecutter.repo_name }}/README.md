@@ -90,10 +90,10 @@ Now, create a stage to break images into smaller tiles using a custom shell scri
 ``` bash
 dvc run -n split_images \
 -d src/data/split_images.sh \
--d data/raw/nerve/data \
--d data/raw/nerve/mask \
--o data/processed/nerve/data \
--o data/processed/nerve/mask \
+-d data/raw/data \
+-d data/raw/mask \
+-o data/processed/data \
+-o data/processed/mask \
 --desc "Shell script to split images into 256x256 tiles and save in data/processed/"\
 bash src/data/split_images.sh
 
@@ -104,27 +104,30 @@ The next stage will create the mapfile, compute the mean and std images, and cre
 ``` bash
 dvc run -n make_nerve_dataset -p color_mode,save_format,segmentation,target_size \
 -d src/data/make_dataset.py \
--d data/processed/nerve/data \
--d data/processed/nerve/mask \
--o data/processed/nerve/mapfile_df.csv \
--o data/processed/nerve/split_train_dev.csv \
--o data/processed/nerve/mean_image.png \
--o data/processed/nerve/std_image.png \
+-d data/processed/data \
+-d data/processed/mask \
+-o data/processed/mapfile_df.csv \
+-o data/processed/split_train_dev.csv \
+-o data/processed/mean_image.png \
+-o data/processed/std_image.png \
 --desc "Create a mapfile from the directories, compute the mean and std image, and split into train/dev/test sets." \
-python3 src/data/make_dataset.py data/processed/nerve/ data/processed/nerve/ mapfile_df.csv -p params.yaml --force
+python3 src/data/make_dataset.py data/processed/ data/processed/ mapfile_df.csv -p params.yaml --force
 ```
 
 We will use the mapfile and train/dev splits to train a model in the next stage.
 ``` bash
-dvc run -n train_nerve_seg -p color_mode,mean_img,std_img,train_model,random_seed,segmentation,target_size,n_classes \
+dvc run -n train_seg -p color_mode,mean_img,std_img,train_model,random_seed,segmentation,target_size,n_classes \
 -d src/models/train_model.py \
--d data/processed/nerve/mapfile_df.csv \
--d data/processed/nerve/split_train_dev.csv \
--d data/processed/nerve/mean_image.png \
--d data/processed/nerve/std_image.png \
--o models/ \
+-d src/models/train_callbacks.py \
+-d src/models/networks/unet.py \
+-d data/processed/mapfile_df.csv \
+-d data/processed/split_train_dev.csv \
+-d data/processed/mean_image.png \
+-d data/processed/std_image.png \
+-o models/dev/ \
+-m results/metrics.json \
 --desc "Train a model using the mapfile and train/dev splits." \
-python3 src/models/train_model.py data/processed/nerve/mapfile_df.csv data/processed/nerve/split_train_dev.csv -p params.yaml --model-name nerve_seg
+python3 src/models/train_model.py data/processed/mapfile_df.csv data/processed/split_train_dev.csv -p params.yaml
 ```
 
 ## Project Organization

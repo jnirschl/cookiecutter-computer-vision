@@ -11,6 +11,7 @@ from functools import partial
 
 import tensorflow as tf
 from tensorflow.data import AUTOTUNE
+from keras.utils.layer_utils import count_params
 
 import numpy as np
 import cv2
@@ -32,7 +33,6 @@ def train(
     cv_idx_path,
     params_filepath="params.yaml",
     model_dir="./models/dev",
-    model_name="model",
     results_dir="./results",
     metrics_file="metrics.json",
 ):
@@ -46,8 +46,17 @@ def train(
     # load params
     params = load_params(params_filepath)
     train_params = params["train_model"]
-    random_seed, target_size, n_classes, mean_img, std_img, deterministic = (
+    (
+        random_seed,
+        model_name,
+        target_size,
+        n_classes,
+        mean_img,
+        std_img,
+        deterministic,
+    ) = (
         params["random_seed"],
+        params["model_name"],
         params["target_size"],
         params["n_classes"],
         params["mean_img"],
@@ -133,6 +142,7 @@ def train(
         "time": elapsed_time,
         "epochs": total_epochs,
         "iterations": int(total_epochs * train_steps_per_epoch),
+        "parameters": count_params(model.trainable_weights),
         "loss": history.history["loss"][-1],
         "accuracy": history.history["accuracy"][-1],
         "val_loss": history.history["val_loss"][-1],
@@ -250,17 +260,12 @@ def create_dataset(
     default=Path("./models/dev").resolve(),
     type=click.Path(),
 )
-@click.option(
-    "--model-name",
-    default="model",
-)
 def main(
     mapfile_path,
     cv_idx_path,
     params_filepath="params.yaml",
     results_dir="./results",
     model_dir="./models",
-    model_name="model",
 ):
     train(
         mapfile_path,
@@ -268,7 +273,6 @@ def main(
         params_filepath=params_filepath,
         results_dir=results_dir,
         model_dir=model_dir,
-        model_name=model_name,
     )
 
 

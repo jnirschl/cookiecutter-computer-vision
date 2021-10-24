@@ -5,11 +5,11 @@
 # Licensed under the MIT license. See the LICENSE.md file in the project
 # root directory for full license information.
 #
-# Time-stamp: <>
+# Time-stamp: <2021-10-22 16:34:10 jjn>
 # ======================================================================
 set -euo pipefail
 
-INPUT_DIR=${1-"/home/jjn/Documents/GitHub/nerve_morphometry/data/raw/"}
+INPUT_DIR=${1-"/home/jjn/Documents/GitHub/{{cookiecutter.repo_name}}/data/raw/"}
 TILE_SIZE=${2-256}
 
 find $INPUT_DIR -type f -name "*.png" | sort | while read FILE; do

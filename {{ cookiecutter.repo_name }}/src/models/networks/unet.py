@@ -183,7 +183,7 @@ def unet(input_shape=(256, 256, 1), base_filter=4, n_classes=1):
     return tf.keras.Model(inputs, conv10)
 
 
-def unet_xception(input_shape, n_classes, padding="same"):
+def unet_xception(input_shape, n_classes, padding="same", downsample=2):
     """
     From https://keras.io/examples/vision/oxford_pets_image_segmentation/#prepare-unet-xceptionstyle-model
     """
@@ -192,14 +192,16 @@ def unet_xception(input_shape, n_classes, padding="same"):
     ### [First half of the network: downsampling inputs] ###
 
     # Entry block
-    x = layers.Conv2D(32, 3, strides=2, padding=padding)(inputs)
+    x = layers.Conv2D(32/downsample, 3, strides=2, padding=padding)(inputs)
     x = layers.BatchNormalization()(x)
     x = layers.Activation("relu")(x)
 
     previous_block_activation = x  # Set aside residual
 
     # Blocks 1, 2, 3 are identical apart from the feature depth.
-    for filters in [64/2, 128/2, 256/2]:
+    filter_block_1 = [int(elem / downsample) for elem in [64, 128, 256]]
+    filter_block_2 = [int(elem / downsample) for elem in [256, 128, 64, 32]]
+    for filters in filter_block_1:
         x = layers.Activation("relu")(x)
         x = layers.SeparableConv2D(filters, 3, padding=padding)(x)
         x = layers.BatchNormalization()(x)
@@ -219,7 +221,7 @@ def unet_xception(input_shape, n_classes, padding="same"):
 
     # [Second half of the network: upsampling inputs]
 
-    for filters in [256/2, 128/2, 64/2, 32/2]:
+    for filters in filter_block_2:
         x = layers.Activation("relu")(x)
         x = layers.Conv2DTranspose(filters, 3, padding=padding)(x)
         x = layers.BatchNormalization()(x)
