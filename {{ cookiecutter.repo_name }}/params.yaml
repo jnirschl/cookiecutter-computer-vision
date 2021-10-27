@@ -1,13 +1,22 @@
-target_size: [224, 224, 3]
-n_classes:  2
-color_mode: rgb
-segmentation: false
+color_mode: {{cookiecutter.color_mode}}
+deterministic: true
+mean_img: nan
+model_name: model_name
+n_classes: {{cookiecutter.n_classes}}
+random_seed: 9854321
+save_format: png
+segmentation: true
+std_img: nan
+target_size: {{cookiecutter.target_size}}
+test: true
 train_model:
-  batch_size: 32
-  epochs: 10
-mean_img:
-  g: nan
-random_seed: 12345
+  batch_size: 1
+  callbacks:
+    callbacks:
+    - ReduceLROnPlateau
+    mode: auto
+    monitor: val_loss
+  epochs: 50
 train_test_split:
   n_split: 10
   shuffle: true

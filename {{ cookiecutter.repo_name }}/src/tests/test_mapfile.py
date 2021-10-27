@@ -32,6 +32,11 @@ def mapfile_df(output_filename):
     )
 
 
+@pytest.fixture
+def params_filepath():
+    return str(Path("./src/tests/test_data/mnist_small/").joinpath("params.yaml"))
+
+
 class TestMapfile:  # input_dir, output_dir, output_filename
     def test_create_mapfile(self, input_dir, output_dir, output_filename):
         """Tests for mapfile.create.create_mapfile
@@ -44,12 +49,14 @@ class TestMapfile:  # input_dir, output_dir, output_filename
         assert Path(output_dir).joinpath(output_filename).exists()
         assert Path(output_dir).joinpath("label_encoding.yaml").exists()
 
-    def test_split(self, mapfile_df, output_dir):
+    def test_split(self, mapfile_df, output_dir, params_filepath):
         """Tests for mapfile.split
         Test that each image is a test for one and only one cross-
         validation fold. Also tests file saving"""
 
-        split_df = mapfile.split(mapfile_df, output_dir, params=None)
+        split_df = mapfile.split(
+            mapfile_df, output_dir, params_filepath=params_filepath
+        )
 
         # each image should be a test for one and only one fold
         assert (
@@ -59,11 +66,11 @@ class TestMapfile:  # input_dir, output_dir, output_filename
         # test output file exists
         assert Path(output_dir).joinpath("split_train_dev.csv").exists()
 
-    def test_split_rng(self, mapfile_df, input_dir):
+    def test_split_rng(self, mapfile_df, input_dir, params_filepath):
         """Tests for mapfile.split
         Test that repeated calls to mapfile.split return the same
         stratified k-fold based on the random seed in params.yaml"""
 
-        split_1 = mapfile.split(mapfile_df)
-        split_2 = mapfile.split(mapfile_df)
+        split_1 = mapfile.split(mapfile_df, params_filepath=params_filepath)
+        split_2 = mapfile.split(mapfile_df, params_filepath=params_filepath)
         assert (split_1 == split_2).all().all()
