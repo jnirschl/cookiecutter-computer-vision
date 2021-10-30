@@ -102,7 +102,7 @@ git add dvc.yaml dvc.lock
 
 The next stage will create the mapfile, compute the mean and std images, and create train/test splits.
 ``` bash
-dvc run -n make_nerve_dataset -p color_mode,save_format,segmentation,target_size \
+dvc run -n make_dataset -p color_mode,save_format,segmentation,target_size \
 -d src/data/make_dataset.py \
 -d data/processed/data \
 -d data/processed/mask \
@@ -116,7 +116,7 @@ python3 src/data/make_dataset.py data/processed/ data/processed/ mapfile_df.csv 
 
 We will use the mapfile and train/dev splits to train a model in the next stage.
 ``` bash
-dvc run -n train_seg -p color_mode,mean_img,std_img,train_model,random_seed,segmentation,target_size,n_classes \
+dvc run -n train_seg -p color_mode,deterministic,mean_img,std_img,train_model,random_seed,segmentation,target_size,n_classes \
 -d src/models/train_model.py \
 -d src/models/train_callbacks.py \
 -d src/models/networks/unet.py \
