@@ -97,29 +97,53 @@ def random_flip(img):
 
 
 @tf.function()
-def apply_transforms(img, label, input_shape, mean=0.5, max_delta=0.2):
-    # resizing to 286x286
-    # img = tf_resize(img, input_shape[0], input_shape[1])
+def apply_transforms(img, label, input_shape, mean, std, max_delta=0.2):
+    # resizing to [orig, orig*1.25]
+    new_size = np.random.randint(
+        input_shape[0], np.round(input_shape[0] * 1.25).astype(np.int)
+    )
+    img = tf_resize(img, height=new_size, width=new_size)
+
+    # random crop
+    img = random_crop(
+        IMG_HEIGHT=input_shape[0],
+        IMG_WIDTH=input_shape[1],
+        IMG_CH=input_shape[2],
+    )
+
+    # random brightness, contrast
+    img = tf.image.random_brightness(img, max_delta=max_delta)
+    img = tf.image.random_contrast(img, 0.8, 1.5)
+
+    # random hue and saturation for rgb images
+    if input_shape[2] > 1:
+        img = tf.image.random_hue(img, 0.1)
+        img = tf.image.random_saturation(img, 0.8, 1.2)
+
+    # random jpg compression
+    img = tf.image.random_jpeg_quality(img, 50, 90)
+
+    # add random Gaussian noise
+    noise = tf.random.normal(
+        shape=tf.shape(img), mean=0.0, stddev=0.1, dtype=tf.float32
+    )
+    img = tf.add(img, noise)
+
+    # random filtering
+    img = tfa.image.mean_filter2d(img, filter_shape=np.random.randint(1, 9))
 
     # normalize image to range [-1, 1]
-    img = tf_normalize(img, mean=mean)
-
-    # random brightness, contrast, saturation,
-    img = tf.image.random_brightness(img, max_delta=max_delta)
-    img = tf.image.random_contrast(img, 0.5, 2.0)
-    img = tf.image.random_saturation(img, 0.75, 1.25)
-
-    # img = random_crop(img)  # random crop
-
-    # img = random_flip(img)  # random mirror
+    img = tf_standardize(img, mean=mean, std=std)
 
     return img, label
 
 
 @tf.function()
 def apply_transforms_pair(img, mask, input_shape, mean, std, max_delta=0.2):
-    # resizing to [286, 512]
-    new_size = np.random.randint(286, 316)
+    # resizing to [orig, orig*1.25]
+    new_size = np.random.randint(
+        input_shape[0], np.round(input_shape[0] * 1.25).astype(np.int)
+    )
     img, mask = tf_resize_pair(img, mask, new_size, new_size)
 
     # random crop

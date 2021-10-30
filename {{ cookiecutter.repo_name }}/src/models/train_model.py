@@ -111,7 +111,7 @@ def train(
         model.compile(
             optimizer=tf.keras.optimizers.Adam(0.001),
             loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-            metrics=[tf.keras.metrics.SparseCategoricalAccuracy()],
+            metrics=["accuracy"],
         )
 
     # set callbacks
@@ -207,7 +207,9 @@ def create_dataset(
         # apply transforms except under deterministic mode
         if not deterministic:
             dataset = dataset.map(
-                lambda x, y: apply_transforms(x, y, input_shape=target_size),
+                lambda x, y: apply_transforms(
+                    x, y, input_shape=target_size, mean=mean_img, std=std_img
+                ),
                 num_parallel_calls=AUTOTUNE,
             )
 
