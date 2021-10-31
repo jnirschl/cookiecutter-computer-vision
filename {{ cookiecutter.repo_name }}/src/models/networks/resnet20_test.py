@@ -16,17 +16,16 @@
 """Tests for uncertainty_baselines.models.resnet20."""
 
 import tensorflow as tf
-import uncertainty_baselines as ub
+from src.models import networks
 
 
 class ResNet20Test(tf.test.TestCase):
+    def testCreateModel(self):
+        batch_size = 31
+        model = networks.resnet20(batch_size)
+        logits = model(tf.random.uniform((batch_size, 32, 32, 3)))
+        self.assertEqual(logits.shape, (batch_size, 10))
 
-  def testCreateModel(self):
-    batch_size = 31
-    model = ub.models.resnet20(batch_size)
-    logits = model(tf.random.uniform((batch_size, 32, 32, 3)))
-    self.assertEqual(logits.shape, (batch_size, 10))
 
-
-if __name__ == '__main__':
-  tf.test.main()
+if __name__ == "__main__":
+    tf.test.main()
