@@ -57,6 +57,7 @@ class TestMapfile:  # input_dir, output_dir, output_filename
         split_df = mapfile.split(
             mapfile_df, output_dir, params_filepath=params_filepath
         )
+        split_df = mapfile.split(mapfile_df, output_dir)
 
         # each image should be a test for one and only one fold
         assert (
