@@ -97,7 +97,11 @@ def train(
 
     # create model
     if params["segmentation"]:
-        model = networks.unet_xception(input_shape=target_size, n_classes=n_classes)
+        model = networks.unet(
+            input_shape=target_size,
+            num_classes=n_classes,
+            random_seed=random_seed,
+        )
         optimizer = tf.keras.optimizers.Adam(0.001)
         model.compile(
             optimizer=optimizer,
@@ -105,8 +109,8 @@ def train(
             metrics=["accuracy"],
         )
     else:
-        model = networks.simple_nn(
-            input_shape=target_size, n_classes=n_classes, deterministic=deterministic
+        model = networks.resnet20(
+            input_shape=target_size, num_classes=n_classes, seed=random_seed
         )
         model.compile(
             optimizer=tf.keras.optimizers.Adam(0.001),
@@ -114,6 +118,7 @@ def train(
             metrics=["accuracy"],
         )
 
+    logger.info(model.summary())
     # set callbacks
     callbacks = train_callbacks.set(params_filepath=params_filepath)
 
