@@ -102,14 +102,31 @@ def apply_transforms(img, label, input_shape, mean, std, max_delta=0.2):
     new_size = np.random.randint(
         input_shape[0], np.round(input_shape[0] * 1.25).astype(np.int)
     )
-    img = tf_resize(img, height=new_size, width=new_size)
+    # img = tf_resize(img, height=new_size, width=new_size)
 
-    # random crop
-    img = random_crop(
-        IMG_HEIGHT=input_shape[0],
-        IMG_WIDTH=input_shape[1],
-        IMG_CH=input_shape[2],
-    )
+    # random flip up-down
+    if tf.random.uniform(()) > 0.5:
+        img = tf.image.flip_up_down(img)
+
+    if tf.random.uniform(()) > 0.5:
+        img = tf.image.flip_left_right(img)
+
+    # random rotate
+    # img = tfa.image.rotate(
+    #     img,
+    #     tf.constant(np.pi / np.random.randint(1, 8)),
+    #     interpolation="nearest",
+    #     fill_mode="reflect",
+    #     name="random_rotate",
+    # )
+
+    # # random crop
+    # img = random_crop(
+    #     img,
+    #     IMG_HEIGHT=input_shape[0],
+    #     IMG_WIDTH=input_shape[1],
+    #     IMG_CH=input_shape[2],
+    # )
 
     # random brightness, contrast
     img = tf.image.random_brightness(img, max_delta=max_delta)

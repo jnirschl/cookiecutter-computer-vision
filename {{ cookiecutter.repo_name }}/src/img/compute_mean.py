@@ -53,7 +53,7 @@ def image(mapfile, img_shape=None, grayscale=False, force=True):
 
 
 def mean_subfun(mapfile_df, img_shape, FORMAT):
-    """"""
+    """ """
 
     logger = logging.getLogger(__name__)
     logging_flag = False
@@ -71,14 +71,14 @@ def mean_subfun(mapfile_df, img_shape, FORMAT):
                 f"Error opening file:\t{Path('./').joinpath(*Path(filename).parts[-3:])}"
             )
 
-        if img.shape != mean_img.shape:
-            img = np.reshape(img, mean_img.shape)
-
         if img.shape[0:2] != img_shape[0:2]:
             if not logging_flag:
                 logger.info(f"Resizing images to: {img_shape}")  # print once
                 logging_flag = True
             img = cv2.resize(img, img_shape[0:2], interpolation=cv2.INTER_AREA)
+
+        if img.shape != mean_img.shape:
+            img = np.reshape(img, mean_img.shape)
 
         # ensure image is valid
         if img is None:
@@ -96,7 +96,7 @@ def mean_subfun(mapfile_df, img_shape, FORMAT):
 
 
 def std_subfun(mean_img, mapfile_df, img_shape, FORMAT):
-    """"""
+    """ """
 
     logger = logging.getLogger(__name__)
     logging_flag = False
@@ -116,14 +116,14 @@ def std_subfun(mean_img, mapfile_df, img_shape, FORMAT):
                 f"Error opening file:\t{Path('./').joinpath(*Path(filename).parts[-3:])}"
             )
 
-        if img.shape != mean_img.shape:
-            img = np.reshape(img, mean_img.shape)
-
         if tuple(img.shape[0:2]) != tuple(img_shape[0:2]):
             if not logging_flag:
                 logger.info(f"Resizing images to: {img_shape}")  # print once
                 logging_flag = True
             img = cv2.resize(img, img_shape[0:2], interpolation=cv2.INTER_AREA)
+
+        if img.shape != mean_img.shape:
+            img = np.reshape(img, mean_img.shape)
 
         # ensure image is valid
         if img is None:
@@ -142,7 +142,7 @@ def std_subfun(mean_img, mapfile_df, img_shape, FORMAT):
 
     # divide by n_images
     std_img_float = np.sqrt(np.divide(std_img, idx + 1))
-    std_img_uint8 = (std_img_float*255.0).astype(np.uint8)
+    std_img_uint8 = (std_img_float * 255.0).astype(np.uint8)
     return std_img_uint8
 
 
