@@ -48,13 +48,13 @@ def set(params_filepath="params.yaml"):
             callback.append(
                 tf.keras.callbacks.ReduceLROnPlateau(
                     monitor=callback_params["monitor"],
-                    factor=0.1,
+                    factor=0.05,
                     patience=5,
                     verbose=1,
                     mode=callback_params["mode"],
                     min_delta=0.0001,
                     cooldown=0,
-                    min_lr=0,
+                    min_lr=1e-6,
                 )
             )
 
