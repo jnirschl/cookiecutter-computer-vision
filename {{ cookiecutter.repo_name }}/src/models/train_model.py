@@ -15,7 +15,7 @@ from keras.utils.layer_utils import count_params
 
 import numpy as np
 import cv2
-
+import weightwatcher as ww
 
 # load custom libraries from src
 from src.data import mapfile, load_data, save_metrics
@@ -109,12 +109,12 @@ def train(
             metrics=["accuracy"],
         )
     else:
-        model = networks.resnet20(
+        model = networks.simple_nn(
             input_shape=target_size, num_classes=n_classes, seed=random_seed
         )
         model.compile(
             optimizer=tf.keras.optimizers.Adam(0.001),
-            loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+            loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
             metrics=["accuracy"],
         )
 
@@ -140,21 +140,36 @@ def train(
     total_epochs = len(history.history["loss"])
     logger.info(f"Trained for {total_epochs} epochs in {elapsed_time:.4f} seconds")
 
+    watcher = ww.WeightWatcher(model=model)
+    results = watcher.analyze()
+
+    ww_summary = watcher.get_summary()
+    details = watcher.get_details()
+
     # update metrics.json
     results_dir = Path(results_dir).resolve()
     metrics_filepath = results_dir.joinpath(f"{metrics_file}")
     metrics = {
+        "data": {
+            "n_images": mapfile_df.shape[0],
+            "n_train": len(train_idx),
+            "n_val": len(val_idx),
+        },
+        "model": {
+            "parameters": count_params(model.trainable_weights),
+        },
+        "train": {
+            "loss": history.history["loss"][-1],
+            "accuracy": history.history["accuracy"][-1],
+            "val_loss": history.history["val_loss"][-1],
+            "val_accuracy": history.history["val_accuracy"][-1],
+            "epochs": total_epochs,
+            "iterations": int(total_epochs * train_steps_per_epoch),
+        },
+        "weightwatcher": {
+            **ww_summary,
+        },
         "time": elapsed_time,
-        "epochs": total_epochs,
-        "iterations": int(total_epochs * train_steps_per_epoch),
-        "parameters": count_params(model.trainable_weights),
-        "loss": history.history["loss"][-1],
-        "accuracy": history.history["accuracy"][-1],
-        "val_loss": history.history["val_loss"][-1],
-        "val_accuracy": history.history["val_accuracy"][-1],
-        "n_images": mapfile_df.shape[0],
-        "n_train": len(train_idx),
-        "n_val": len(val_idx),
     }
     save_metrics(metrics, str(metrics_filepath))
 
