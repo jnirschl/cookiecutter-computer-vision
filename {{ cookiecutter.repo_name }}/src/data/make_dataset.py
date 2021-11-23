@@ -6,6 +6,7 @@ import numpy as np
 from pathlib import Path
 
 import click
+import pandas as pd
 from dotenv import find_dotenv, load_dotenv
 
 # load custom libraries from src
@@ -17,17 +18,31 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 
 def create(
-    input_dir,
-    output_dir,
-    output_filename="mapfile_df.csv",
-    params_filepath="params.yaml",
-    force=True,
-    na_rep="nan",
-):
-    """Runs data processing scripts to accept a directory INPUT_DIR containing
+    input_dir: str,
+    output_dir: str,
+    output_filename: str = "mapfile_df.csv",
+    params_filepath: str = "params.yaml",
+    force: bool = True,
+    na_rep: str = "nan",
+) -> pd.DataFrame:
+    """Create mapfile and train/validation splits from directories of image.
+
+    Runs data processing scripts to accept a directory INPUT_DIR containing
     sub-folders of images with one sub-folder per class and create a CSV file
     mapping the image filepath to integer class labels, which is saved in
     OUTPUT_DIR.
+
+    Args:
+        input_dir: str with full path to input directory
+        output_dir: str with full path to output directory
+        output_filename: str with desired output name for mapfile
+        params_filepath: str with filename for parameter YAML, which must be in project root
+        force: bool to force overwrite pre-existing files
+        na_rep: str with value to replace nan values in
+
+    Returns:
+        Pandas Dataframe with image filepath and class for classification or
+        image filepath and mask filepath for segmentation
     """
     # fix output_filename file extension if not given
     output_filename = Path(output_filename)
@@ -60,8 +75,12 @@ def create(
     )
 
     #
-    params["mean_img"] = [float(elem) for elem in np.mean(mean_img, axis=tuple(range(2))) / 255.0]
-    params["std_img"] = [float(elem) for elem in np.mean(std_img, axis=tuple(range(2))) / 255.0]
+    params["mean_img"] = [
+        float(elem) for elem in np.mean(mean_img, axis=tuple(range(2))) / 255.0
+    ]
+    params["std_img"] = [
+        float(elem) for elem in np.mean(std_img, axis=tuple(range(2))) / 255.0
+    ]
     # save parameters
     save_params(params, filepath=params_filepath)
 
