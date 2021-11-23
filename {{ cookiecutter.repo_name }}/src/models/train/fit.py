@@ -7,34 +7,33 @@ from codetiming import Timer
 import logging
 from pathlib import Path
 
-from functools import partial
-
 import tensorflow as tf
 from tensorflow.data import AUTOTUNE
 from keras.utils.layer_utils import count_params
 
 import numpy as np
-import cv2
 import weightwatcher as ww
 
 # load custom libraries from src
-from src.data import mapfile, load_data, save_metrics
-from src.img.tfreader import tf_imread, tf_imreadpair, tf_dataset
+from src.data import load_data, save_metrics
+from src.img.tfreader import tf_imread, tf_imreadpair
 from src.img.augment import apply_transforms, apply_transforms_pair
 from src.data import load_params
-from src.models import networks, train_callbacks
+from src.models import networks
+from src.models import train
 
 # set tf warning options
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 
-def train(
+def fit(
     mapfile_path,
     cv_idx_path,
     params_filepath="params.yaml",
     model_dir="./models/dev",
     results_dir="./results",
     metrics_file="metrics.json",
+    debug=False,
 ):
     """Accept filepaths to the mapfile and train-dev split, train mode, and return
     training history."""
@@ -118,9 +117,11 @@ def train(
             metrics=["accuracy"],
         )
 
-    logger.info(model.summary())
+    if not debug:
+        logger.info(model.summary())
+
     # set callbacks
-    callbacks = train_callbacks.set(params_filepath=params_filepath)
+    callbacks = train.callbacks(params_filepath=params_filepath)
 
     # train model and compute overall training time
     t = Timer(name="Training", text="{name}: {:.4f} seconds", logger=None)
@@ -140,11 +141,14 @@ def train(
     total_epochs = len(history.history["loss"])
     logger.info(f"Trained for {total_epochs} epochs in {elapsed_time:.4f} seconds")
 
-    watcher = ww.WeightWatcher(model=model)
-    results = watcher.analyze()
+    if debug:
+        ww_summary = {"debug": True}
+    else:
+        watcher = ww.WeightWatcher(model=model)
+        results = watcher.analyze()
 
-    ww_summary = watcher.get_summary()
-    details = watcher.get_details()
+        ww_summary = watcher.get_summary()
+        details = watcher.get_details()
 
     # update metrics.json
     results_dir = Path(results_dir).resolve()
@@ -282,19 +286,27 @@ def create_dataset(
     default=Path("./models/dev").resolve(),
     type=click.Path(),
 )
+@click.option(
+    "--debug",
+    "-d",
+    is_flag=False,
+    help="Debug switch.",
+)
 def main(
     mapfile_path,
     cv_idx_path,
     params_filepath="params.yaml",
     results_dir="./results",
     model_dir="./models",
+    debug=False,
 ):
-    train(
+    fit(
         mapfile_path,
         cv_idx_path,
         params_filepath=params_filepath,
         results_dir=results_dir,
         model_dir=model_dir,
+        debug=debug,
     )
 
 

@@ -14,7 +14,7 @@ import tensorflow as tf
 from src.data import load_params
 
 
-def set(params_filepath="params.yaml"):
+def callbacks(params_filepath="params.yaml"):
     """Accept params_filepaths, loads params.yaml, and returns a list of tf callbacks."""
 
     # start logger

@@ -24,8 +24,8 @@ from src.models import networks
 class UnetTest(tf.test.TestCase):
     def test_unet_resnet(self):
 
-        rand_seed = 83922
-        tf.random.set_seed(rand_seed)
+        random_seed = 83922
+        tf.random.set_seed(random_seed)
         dataset_size = 10
         batch_size = 5
         input_shape = (224, 224, 3)
@@ -40,7 +40,7 @@ class UnetTest(tf.test.TestCase):
             input_shape=input_shape,
             filters=[512, 256, 128, 64],
             num_classes=num_classes,
-            seed=rand_seed,
+            random_seed=random_seed,
         )
 
         model.compile(
