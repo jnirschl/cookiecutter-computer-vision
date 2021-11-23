@@ -3,7 +3,7 @@
 import tensorflow as tf
 
 
-def simple_nn(input_shape=(28, 28, 1), n_classes=10, deterministic=False):
+def simple_nn(input_shape=(28, 28, 1), num_classes=10, deterministic=False, seed=None):
     """ """
 
     if deterministic:
@@ -29,6 +29,6 @@ def simple_nn(input_shape=(28, 28, 1), n_classes=10, deterministic=False):
         )
 
     # add output layer
-    model.add(tf.keras.layers.Dense(n_classes))
+    model.add(tf.keras.layers.Dense(num_classes))
 
     return model

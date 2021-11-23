@@ -110,5 +110,6 @@ def resnet20(
 
     x = tf.keras.layers.AveragePooling2D(pool_size=8)(x)
     x = tf.keras.layers.Flatten()(x)
-    logits = tf.keras.layers.Dense(num_classes, kernel_initializer="he_normal")(x)
+    logits = tf.keras.layers.Dense(num_classes, activation=None,
+                                   kernel_initializer="he_normal")(x)
     return tf.keras.models.Model(inputs=input_layer, outputs=logits, name="resnet20")

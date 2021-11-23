@@ -14,6 +14,7 @@ def tf_imread(data_records):
     image = tf.image.decode_png(image_raw)
     image = tf.image.convert_image_dtype(image, dtype=tf.float32)
     label = tf.strings.to_number(data_records[1], tf.int32)
+    label = tf.expand_dims(label, axis=0)
     return image, label
 
 
