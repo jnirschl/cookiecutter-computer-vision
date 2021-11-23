@@ -16,9 +16,8 @@ import weightwatcher as ww
 
 # load custom libraries from src
 from src.data import load_data, save_metrics
-from src.img.tfreader import tf_imread, tf_imreadpair
-from src.img.augment import apply_transforms, apply_transforms_pair
-from src.data import load_params
+
+from src.data import load_params, tfdata
 from src.models import networks
 from src.models import train
 
@@ -82,8 +81,8 @@ def fit(
     train_idx, val_idx = next(split_generator)
 
     # create train and validation datasets
-    train_dataset = create_dataset(mapfile_df.iloc[train_idx], params, logger)
-    val_dataset = create_dataset(mapfile_df.iloc[val_idx], params, logger)
+    train_dataset = tfdata.create_dataset(mapfile_df.iloc[train_idx], params, logger)
+    val_dataset = tfdata.create_dataset(mapfile_df.iloc[val_idx], params, logger)
 
     # set batch size, epochs, and steps per epoch
     batch_size, epochs = train_params["batch_size"], train_params["epochs"]
@@ -121,7 +120,7 @@ def fit(
         logger.info(model.summary())
 
     # set callbacks
-    callbacks = train.callbacks(params_filepath=params_filepath)
+    callbacks = train.callbacks.set(params_filepath=params_filepath)
 
     # train model and compute overall training time
     t = Timer(name="Training", text="{name}: {:.4f} seconds", logger=None)
@@ -141,6 +140,9 @@ def fit(
     total_epochs = len(history.history["loss"])
     logger.info(f"Trained for {total_epochs} epochs in {elapsed_time:.4f} seconds")
 
+    # set output vars
+    results_dir = Path(results_dir).resolve()
+
     if debug:
         ww_summary = {"debug": True}
     else:
@@ -149,9 +151,10 @@ def fit(
 
         ww_summary = watcher.get_summary()
         details = watcher.get_details()
+        warning_df = details[details.warning != ""][["layer_id", "name", "warning"]]
+        warning_df.to_csv(results_dir.joinpath("layer_warnings.csv"))
 
     # update metrics.json
-    results_dir = Path(results_dir).resolve()
     metrics_filepath = results_dir.joinpath(f"{metrics_file}")
     metrics = {
         "data": {
@@ -186,80 +189,6 @@ def fit(
     model.save(model_filename, save_format="tf")
 
     return history
-
-
-def create_dataset(
-    mapfile_df,
-    params,
-    logger,
-):
-    """Accepts mapfile_df as Pandas DataFrame, dictionary of parameters, and logger and returns
-    a Tensorflow Dataset instance"""
-
-    # create dataset using tf.data
-    data_records = [list(elem) for elem in mapfile_df.to_records(index=False)]
-    dataset = tf.data.Dataset.from_tensor_slices(data_records)
-
-    # set params
-    batch_size = params["train_model"]["batch_size"]
-    random_seed, target_size, mean_img, std_img, deterministic = (
-        params["random_seed"],
-        params["target_size"],
-        params["mean_img"],
-        params["std_img"],
-        params["deterministic"],
-    )
-
-    # build tf.data pipeline - map transforms before caching
-    if params["segmentation"]:
-        dataset = dataset.map(
-            tf_imreadpair,
-            num_parallel_calls=AUTOTUNE,
-        )
-        if not deterministic:
-            dataset = dataset.map(
-                lambda x, y: apply_transforms_pair(
-                    x, y, input_shape=target_size, mean=mean_img, std=std_img
-                ),
-                num_parallel_calls=AUTOTUNE,
-            )
-    else:
-        dataset = dataset.map(
-            tf_imread,
-            num_parallel_calls=AUTOTUNE,
-        )
-        # apply transforms except under deterministic mode
-        if not deterministic:
-            dataset = dataset.map(
-                lambda x, y: apply_transforms(
-                    x, y, input_shape=target_size, mean=mean_img, std=std_img
-                ),
-                num_parallel_calls=AUTOTUNE,
-            )
-
-    # cache before shuffle to randomize order
-    dataset = dataset.cache()
-    if not deterministic:
-        dataset = dataset.shuffle(
-            buffer_size=mapfile_df.shape[0],
-            seed=random_seed,
-            reshuffle_each_iteration=True,
-        )
-
-    # apply repeat after shuffle to show every example of one epoch before moving to the next
-    # otherwise, a repeat before shuffle will mix epoch boundaries together
-    dataset = (
-        dataset.repeat()  # infinite cardinality
-        .batch(
-            batch_size=batch_size,
-            drop_remainder=True,
-            num_parallel_calls=AUTOTUNE,
-            deterministic=deterministic,
-        )
-        .prefetch(AUTOTUNE)
-    )
-
-    return dataset
 
 
 @click.command()
