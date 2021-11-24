@@ -178,15 +178,18 @@ def fit(
         },
         "time": elapsed_time,
     }
-    save_metrics(metrics, str(metrics_filepath))
 
-    # save model
+    # save metrics and model
+    if not debug:
+        save_metrics(metrics, str(metrics_filepath))
+
     model_dir = Path(model_dir).resolve()
     model_filename = model_dir.joinpath(f"{model_name}_{total_epochs:03d}")
     if not model_dir.exists():
         model_dir.mkdir()
 
-    model.save(model_filename, save_format="tf")
+    if not debug:
+        model.save(model_filename, save_format="tf")
 
     return history
 
