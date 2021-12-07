@@ -44,27 +44,10 @@ def fit(
     # load params
     params = load_params(params_filepath)
     train_params = params["train_model"]
-    (
-        random_seed,
-        model_name,
-        target_size,
-        n_classes,
-        mean_img,
-        std_img,
-        deterministic,
-    ) = (
-        params["random_seed"],
-        params["model_name"],
-        params["target_size"],
-        params["n_classes"],
-        params["mean_img"],
-        params["std_img"],
-        params["deterministic"],
-    )
 
     logger.info(
         f"Deterministic mode activated. Data augmentation and shuffle off."
-    ) if deterministic else None
+    ) if params["deterministic"] else None
 
     # read files
     mapfile_df, cv_idx = load_data(
@@ -90,15 +73,15 @@ def fit(
     val_steps_per_epoch = np.floor(len(val_idx) / batch_size).astype(np.int)
 
     # set random seed
-    np.random.seed(random_seed)
-    tf.random.set_seed(random_seed)
+    np.random.seed(params["random_seed"])
+    tf.random.set_seed(params["random_seed"])
 
     # create model
     if params["segmentation"]:
         model = networks.unet(
-            input_shape=target_size,
-            num_classes=n_classes,
-            random_seed=random_seed,
+            input_shape=params["target_size"],
+            num_classes=params["n_classes"],
+            random_seed=params["random_seed"],
         )
         optimizer = tf.keras.optimizers.Adam(0.001)
         model.compile(
@@ -108,7 +91,10 @@ def fit(
         )
     else:
         model = networks.simple_nn(
-            input_shape=target_size, num_classes=n_classes, seed=random_seed
+            input_shape=params["target_size"],
+            # batch_size=batch_size,
+            num_classes=params["n_classes"],
+            seed=params["random_seed"],
         )
         model.compile(
             optimizer=tf.keras.optimizers.Adam(0.001),
@@ -184,7 +170,7 @@ def fit(
         save_metrics(metrics, str(metrics_filepath))
 
     model_dir = Path(model_dir).resolve()
-    model_filename = model_dir.joinpath(f"{model_name}_{total_epochs:03d}")
+    model_filename = model_dir.joinpath(f"{params['model_name']}_{total_epochs:03d}")
     if not model_dir.exists():
         model_dir.mkdir()
 

@@ -6,5 +6,6 @@ from .simple_nn import simple_nn
 from .unet import unet
 from .unet_xception import unet_xception
 from .resnet20 import resnet20
+from .resnet50_sngp import resnet50_sngp
 
 # from .split import split

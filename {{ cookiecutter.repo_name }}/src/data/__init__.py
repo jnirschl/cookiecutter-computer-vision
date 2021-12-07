@@ -51,7 +51,7 @@ def save_params(params, filepath="params.yaml"):
         writer.write(new_params)
 
 
-def load_data(data_path, sep=",", header=None, index_col=None, dtype=None) -> object:
+def load_data(data_path, sep=",", header=0, index_col=0, dtype=0) -> object:
     """Helper function to load train and test files
      as well as optional param loading
 
