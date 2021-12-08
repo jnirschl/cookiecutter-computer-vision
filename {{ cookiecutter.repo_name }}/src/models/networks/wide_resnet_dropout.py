@@ -118,7 +118,9 @@ def group(inputs, filters, strides, num_blocks, l2, dropout_rate,
 
 
 def wide_resnet_dropout(input_shape, depth, width_multiplier, num_classes, l2,
-                        dropout_rate, residual_dropout, filterwise_dropout):
+                        dropout_rate, residual_dropout, filterwise_dropout,
+                        seed: int = 123456789,
+                        ):
   """Builds Wide ResNet.
 
   Following Zagoruyko and Komodakis (2016), it accepts a width multiplier on the
@@ -142,6 +144,7 @@ def wide_resnet_dropout(input_shape, depth, width_multiplier, num_classes, l2,
   Returns:
     tf.keras.Model.
   """
+  tf.random.set_seed(seed)
   if (depth - 4) % 6 != 0:
     raise ValueError('depth should be 6n+4 (e.g., 16, 22, 28, 40).')
   num_blocks = (depth - 4) // 6

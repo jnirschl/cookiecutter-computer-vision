@@ -66,14 +66,16 @@ def resnet20(
     input_shape: Iterable[int],
     filters: int = 16,
     num_classes: int = 10,
-    random_seed: int = 0,
     l2_weight: float = 0.0,
     batch_size: int = 32,
+    seed: int = 123456789,
     **unused_kwargs: Dict[str, Any]
 ) -> tf.keras.models.Model:
     """Resnet-20 v1, takes tuple of input_shape and returns logits of shape (num_classes,)."""
     # TODO(znado): support NCHW data format.
-    tf.random.set_seed(random_seed)
+
+    tf.random.set_seed(seed)
+
     inputs = tf.keras.layers.Input(shape=input_shape)  # , batch_size=batch_size
     depth = 20
     num_filters = filters

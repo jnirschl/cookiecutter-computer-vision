@@ -26,17 +26,20 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 
 def fit(
-    mapfile_path,
-    cv_idx_path,
-    params_filepath="params.yaml",
-    model_dir="./models/dev",
-    results_dir="./results",
-    metrics_file="metrics.json",
-    debug=False,
+    mapfile_path: str,
+    cv_idx_path: str,
+    params_filepath: str = "params.yaml",
+    model_dir: str = "./models/dev",
+    results_dir: str = "./results",
+    metrics_file: str = "metrics.json",
+    debug: bool = False,
 ):
     """Accept filepaths to the mapfile and train-dev split, train mode, and return
     training history."""
     assert type(mapfile_path) is str, TypeError(f"MAPFILE must be type STR")
+
+    physical_devices = tf.config.experimental.list_physical_devices("GPU")
+    tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
     # start logger
     logger = logging.getLogger(__name__)
@@ -85,7 +88,7 @@ def fit(
         model = networks.unet(
             input_shape=params["target_size"],
             num_classes=params["n_classes"],
-            random_seed=params["random_seed"],
+            seed=params["random_seed"],
         )
         optimizer = tf.keras.optimizers.Adam(0.001)
         model.compile(
@@ -94,7 +97,7 @@ def fit(
             metrics=["accuracy"],
         )
     else:
-        model = networks.simple_nn(
+        model = networks.wide_resnet_sngp(
             input_shape=params["target_size"],
             batch_size=batch_size,
             num_classes=params["n_classes"],

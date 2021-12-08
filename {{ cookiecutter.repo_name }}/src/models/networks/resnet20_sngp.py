@@ -81,7 +81,8 @@ def resnet20_sngp_add_last_layer(
     x,
     num_classes: int,
     use_gp_layer: bool,
-    gp_hidden_dim: int = 1024,
+    gp_input_dim: int = -1,
+    gp_hidden_dim: int = 256,
     gp_scale: float = 1.0,
     gp_bias: float = 0.0,
     gp_input_normalization: bool = False,
@@ -119,13 +120,22 @@ def resnet20_sngp_add_last_layer(
     Returns:
       tf.keras.Model.
     """
-    x = tf.keras.layers.GlobalAveragePooling2D(name="avg_pool")(x)
+    # x = tf.keras.layers.GlobalAveragePooling2D(name="avg_pool")(x)
 
     if use_gp_layer:
         gp_output_initializer = None
         if gp_output_imagenet_initializer:
             # Use the same initializer as dense
             gp_output_initializer = tf.keras.initializers.RandomNormal(stddev=0.01)
+
+        # Uses random projection to reduce the input dimension of the GP layer.
+        if gp_input_dim > 0:
+            x = tf.keras.layers.Dense(
+                gp_input_dim,
+                kernel_initializer="random_normal",
+                use_bias=False,
+                trainable=False,
+            )(x)
 
         output_layer = functools.partial(
             ed.layers.RandomFeatureGaussianProcess,
@@ -151,7 +161,9 @@ def resnet20_sngp_add_last_layer(
             name="fc1000",
         )
 
-    outputs = output_layer(num_classes)(x)[0] # TODO, check output of ed.layers.RandomFeatureGaussianProcess
+    outputs = output_layer(num_classes)(x)[
+        0
+    ]  # TODO, check output of ed.layers.RandomFeatureGaussianProcess
 
     return tf.keras.Model(inputs=inputs, outputs=outputs, name="resnet20_sngp")
 
@@ -163,11 +175,13 @@ def resnet20_sngp(
     random_seed: int = 0,
     l2_weight: float = 0.0,
     batch_size: int = 32,
+    seed: int = 123456789,
     **unused_kwargs: Dict[str, Any]
 ) -> tf.keras.models.Model:
     """Resnet-20 v1, takes tuple of input_shape and returns logits of shape (num_classes,)."""
     # TODO(znado): support NCHW data format.
-    tf.random.set_seed(random_seed)
+    tf.random.set_seed(seed)
+
     inputs = tf.keras.layers.Input(shape=input_shape)  # , batch_size=batch_size
     depth = 20
     num_filters = filters
@@ -202,7 +216,7 @@ def resnet20_sngp(
             x = tf.keras.layers.ReLU()(x)
         num_filters *= 2
 
-    # x = tf.keras.layers.AveragePooling2D(pool_size=8)(x)
-    # x = tf.keras.layers.Flatten()(x)
+    x = tf.keras.layers.AveragePooling2D(pool_size=8)(x)
+    x = tf.keras.layers.Flatten()(x)
 
     return resnet20_sngp_add_last_layer(inputs, x, num_classes, use_gp_layer=True)

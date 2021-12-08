@@ -8,10 +8,10 @@ def simple_nn(
     batch_size=32,
     num_classes=10,
     deterministic=False,
-    seed=None,
+    seed=123456789,
 ):
     """ """
-
+    tf.random.set_seed(seed)
     if deterministic:
         model = tf.keras.models.Sequential(
             [

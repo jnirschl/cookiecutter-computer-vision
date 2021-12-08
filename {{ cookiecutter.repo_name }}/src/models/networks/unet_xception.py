@@ -4,11 +4,17 @@ import tensorflow as tf
 from tensorflow.keras import layers
 
 
-def unet_xception(input_shape, n_classes, padding="same", downsample=2, random_seed=1):
+def unet_xception(
+    input_shape: tuple,
+    n_classes: int,
+    padding: str = "same",
+    downsample: int = 2,
+    seed: int = 123456789,
+):
     """
     From https://keras.io/examples/vision/oxford_pets_image_segmentation/#prepare-unet-xceptionstyle-model
     """
-    tf.random.set_seed(random_seed)
+    tf.random.set_seed(seed)
     inputs = layers.Input(shape=input_shape)
 
     ### [First half of the network: downsampling inputs] ###
