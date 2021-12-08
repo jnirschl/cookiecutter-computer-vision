@@ -74,12 +74,12 @@ def resnet20(
     """Resnet-20 v1, takes tuple of input_shape and returns logits of shape (num_classes,)."""
     # TODO(znado): support NCHW data format.
     tf.random.set_seed(random_seed)
-    input_layer = tf.keras.layers.Input(shape=input_shape)  # , batch_size=batch_size
+    inputs = tf.keras.layers.Input(shape=input_shape)  # , batch_size=batch_size
     depth = 20
     num_filters = filters
     num_res_blocks = int((depth - 2) / 6)
 
-    x = _resnet_layer(inputs=input_layer, num_filters=num_filters, l2_weight=l2_weight)
+    x = _resnet_layer(inputs=inputs, num_filters=num_filters, l2_weight=l2_weight)
     for stack in range(3):
         for res_block in range(num_res_blocks):
             strides = 1
@@ -112,4 +112,4 @@ def resnet20(
     x = tf.keras.layers.Flatten()(x)
     logits = tf.keras.layers.Dense(num_classes, activation=None,
                                    kernel_initializer="he_normal")(x)
-    return tf.keras.models.Model(inputs=input_layer, outputs=logits, name="resnet20")
+    return tf.keras.models.Model(inputs=inputs, outputs=logits, name="resnet20")

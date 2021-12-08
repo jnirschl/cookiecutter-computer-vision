@@ -3,7 +3,13 @@
 import tensorflow as tf
 
 
-def simple_nn(input_shape=(28, 28, 1), num_classes=10, deterministic=False, seed=None):
+def simple_nn(
+    input_shape=(28, 28, 1),
+    batch_size=32,
+    num_classes=10,
+    deterministic=False,
+    seed=None,
+):
     """ """
 
     if deterministic:

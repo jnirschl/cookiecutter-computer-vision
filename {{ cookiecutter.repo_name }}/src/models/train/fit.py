@@ -46,6 +46,10 @@ def fit(
     train_params = params["train_model"]
 
     logger.info(
+        f"Debug mode activated. Model and metrics will not be saved."
+    ) if debug else None
+
+    logger.info(
         f"Deterministic mode activated. Data augmentation and shuffle off."
     ) if params["deterministic"] else None
 
@@ -92,7 +96,7 @@ def fit(
     else:
         model = networks.simple_nn(
             input_shape=params["target_size"],
-            # batch_size=batch_size,
+            batch_size=batch_size,
             num_classes=params["n_classes"],
             seed=params["random_seed"],
         )
@@ -102,7 +106,7 @@ def fit(
             metrics=["accuracy"],
         )
 
-    if not debug:
+    if debug:
         logger.info(model.summary())
 
     # set callbacks
@@ -207,7 +211,7 @@ def fit(
 @click.option(
     "--debug",
     "-d",
-    is_flag=False,
+    is_flag=True,
     help="Debug switch.",
 )
 def main(
