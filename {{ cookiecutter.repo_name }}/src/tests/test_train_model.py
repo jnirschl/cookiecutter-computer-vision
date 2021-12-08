@@ -64,7 +64,7 @@ class TestTrainModel:
 
         runner = CliRunner()
         result = runner.invoke(
-            train.main, [mapfile_path, cv_idx_path, "-p", mnist_params, "-d", True]
+            train.main, [mapfile_path, cv_idx_path, "-p", mnist_params, "-d"]
         )
 
         assert not result.exception

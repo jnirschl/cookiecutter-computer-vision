@@ -166,11 +166,12 @@ def _parse_hyperparameters(l2: float, hps: Dict[str, float]):
 
 
 def wide_resnet(
-    input_shape: Iterable[int],
-    depth: int,
-    width_multiplier: int,
+    input_shape: tuple,
+    batch_size: int,
     num_classes: int,
-    l2: float,
+    depth: int = 28,
+    width_multiplier: int = 5,  # 10,
+    l2: float = 3e-4,
     version: int = 2,
     seed: int = 123456789,
     hps: Optional[Dict[str, float]] = None,

@@ -8,6 +8,7 @@ from .unet_xception import unet_xception
 from .resnet20 import resnet20
 from .resnet20_sngp import resnet20_sngp
 from .resnet50_sngp import resnet50_sngp
+from .wide_resnet import wide_resnet
 from .wide_resnet_sngp import wide_resnet_sngp
 
 # from .split import split

@@ -38,8 +38,8 @@ def fit(
     training history."""
     assert type(mapfile_path) is str, TypeError(f"MAPFILE must be type STR")
 
-    physical_devices = tf.config.experimental.list_physical_devices("GPU")
-    tf.config.experimental.set_memory_growth(physical_devices[0], True)
+    # physical_devices = tf.config.experimental.list_physical_devices("GPU")
+    # tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
     # start logger
     logger = logging.getLogger(__name__)
@@ -90,21 +90,21 @@ def fit(
             num_classes=params["n_classes"],
             seed=params["random_seed"],
         )
-        optimizer = tf.keras.optimizers.Adam(0.001)
+        optimizer = tf.keras.optimizers.Adam(train_params["learning_rate"]),
         model.compile(
             optimizer=optimizer,
             loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
             metrics=["accuracy"],
         )
     else:
-        model = networks.wide_resnet_sngp(
+        model = networks.simple_nn(
             input_shape=params["target_size"],
             batch_size=batch_size,
             num_classes=params["n_classes"],
             seed=params["random_seed"],
         )
         model.compile(
-            optimizer=tf.keras.optimizers.Adam(0.001),
+            optimizer=tf.keras.optimizers.Adam(train_params["learning_rate"]),
             loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
             metrics=["accuracy"],
         )
