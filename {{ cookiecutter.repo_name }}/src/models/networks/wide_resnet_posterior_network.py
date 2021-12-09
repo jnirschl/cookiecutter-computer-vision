@@ -179,7 +179,6 @@ def wide_resnet_posterior_network(
     flow_depth: int = 6,
     flow_width: Optional[int] = None,
     flow_type: str = "maf",
-    seed: int = 123456789,
     hps: Optional[Dict[str, float]] = None,
 ) -> tf.keras.models.Model:
     """Builds Wide ResNet Posterior Network.
@@ -211,7 +210,6 @@ def wide_resnet_posterior_network(
     Returns:
       tf.keras.Model.
     """
-    tf.random.set_seed(seed)
 
     l2_reg = tf.keras.regularizers.l2
     hps = _parse_hyperparameters(l2, hps)

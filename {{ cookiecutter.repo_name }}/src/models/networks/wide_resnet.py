@@ -173,7 +173,6 @@ def wide_resnet(
     width_multiplier: int = 5,  # 10,
     l2: float = 3e-4,
     version: int = 2,
-    seed: int = 123456789,
     hps: Optional[Dict[str, float]] = None,
 ) -> tf.keras.models.Model:
     """Builds Wide ResNet.
@@ -199,7 +198,6 @@ def wide_resnet(
     Returns:
       tf.keras.Model.
     """
-    tf.random.set_seed(seed)
     l2_reg = tf.keras.regularizers.l2
     hps = _parse_hyperparameters(l2, hps)
 

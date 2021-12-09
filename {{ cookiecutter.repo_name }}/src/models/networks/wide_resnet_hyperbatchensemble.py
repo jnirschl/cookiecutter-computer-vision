@@ -214,8 +214,7 @@ def wide_resnet_hyperbatchensemble(
     regularize_fast_weights=False,
     fast_weights_eq_contraint=True,
     version=2,
-    seed: int = 123456789,
-):
+) -> tf.keras.models.Model:
     """Builds Hyper-Batch Ensemble Wide ResNet.
 
     Following Zagoruyko and Komodakis (2016), it accepts a width multiplier on the
@@ -253,7 +252,6 @@ def wide_resnet_hyperbatchensemble(
     Returns:
       tf.keras.Model.
     """
-    tf.random.set_seed(seed)
     # INTERNAL FUNCTION AND LAYER DEFINITIONS
 
     BatchNormalization = functools.partial(  # pylint: disable=invalid-name

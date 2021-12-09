@@ -177,8 +177,7 @@ def wide_resnet_rank1(
     dropout_rate,
     prior_mean,
     prior_stddev,
-    seed: int = 123456789,
-):
+) -> tf.keras.models.Model:
     """Builds Wide ResNet.
 
     Following Zagoruyko and Komodakis (2016), it accepts a width multiplier on the
@@ -213,7 +212,6 @@ def wide_resnet_rank1(
     Returns:
       tf.keras.Model.
     """
-    tf.random.set_seed(seed)
 
     if (depth - 4) % 6 != 0:
         raise ValueError("depth should be 6n+4 (e.g., 16, 22, 28, 40).")

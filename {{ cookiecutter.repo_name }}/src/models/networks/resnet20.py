@@ -68,13 +68,10 @@ def resnet20(
     num_classes: int = 10,
     l2_weight: float = 0.0,
     batch_size: int = 32,
-    seed: int = 123456789,
     **unused_kwargs: Dict[str, Any]
 ) -> tf.keras.models.Model:
     """Resnet-20 v1, takes tuple of input_shape and returns logits of shape (num_classes,)."""
     # TODO(znado): support NCHW data format.
-
-    tf.random.set_seed(seed)
 
     inputs = tf.keras.layers.Input(shape=input_shape)  # , batch_size=batch_size
     depth = 20
@@ -112,6 +109,7 @@ def resnet20(
 
     x = tf.keras.layers.AveragePooling2D(pool_size=8)(x)
     x = tf.keras.layers.Flatten()(x)
-    logits = tf.keras.layers.Dense(num_classes, activation=None,
-                                   kernel_initializer="he_normal")(x)
+    logits = tf.keras.layers.Dense(
+        num_classes, activation=None, kernel_initializer="he_normal"
+    )(x)
     return tf.keras.models.Model(inputs=inputs, outputs=logits, name="resnet20")

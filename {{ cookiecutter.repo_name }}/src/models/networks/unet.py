@@ -91,7 +91,6 @@ def unet(
     filters: Iterable[int] = [512, 256, 128, 64],
     num_classes: int = 2,
     trainable_encoder: bool = True,
-    seed: int = 123456789,
 ) -> tf.keras.models.Model:
     """Build unet model for segmentation.
 
@@ -102,12 +101,10 @@ def unet(
       filters: filters in unet model.
       num_classes: number of classes.
       trainable_encoder: whether encoder is trainable.
-      seed: tf.random seed.
 
     Returns:
       tf.keras.Model.
     """
-    tf.random.set_seed(seed)
     base_model = tf.keras.applications.MobileNetV2(
         input_shape=input_shape, include_top=False
     )
@@ -151,6 +148,6 @@ def unet(
         )  # 64x64 -> 128x128
 
         x = last(x)
-        return tf.keras.Model(inputs=inputs, outputs=x)
+        return tf.keras.Model(inputs=inputs, outputs=x, name="unet")
 
     return unet_model(num_classes)

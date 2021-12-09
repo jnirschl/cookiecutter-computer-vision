@@ -64,8 +64,7 @@ def wide_resnet_mimo(
     width_multiplier,
     num_classes,
     ensemble_size,
-seed: int = 123456789,
-):
+)-> tf.keras.models.Model:
     """Builds Wide ResNet with Sparse BatchEnsemble.
 
     Following Zagoruyko and Komodakis (2016), it accepts a width multiplier on the
@@ -86,7 +85,6 @@ seed: int = 123456789,
     Returns:
       tf.keras.Model.
     """
-    tf.random.set_seed(seed)
 
     if (depth - 4) % 6 != 0:
         raise ValueError("depth should be 6n+4 (e.g., 16, 22, 28, 40).")

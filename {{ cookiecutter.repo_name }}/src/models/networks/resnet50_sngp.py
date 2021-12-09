@@ -260,8 +260,8 @@ def resnet50_sngp_add_last_layer(
             name="fc1000",
         )
 
-    outputs = output_layer(num_classes)(x)
-    return tf.keras.Model(inputs=inputs, outputs=outputs, name="resnet50")
+    outputs = output_layer(num_classes)(x)[0]
+    return tf.keras.Model(inputs=inputs, outputs=outputs, name="resnet50_sngp")
 
 
 def resnet50_sngp(
@@ -272,7 +272,7 @@ def resnet50_sngp(
     dropout_rate: float = 0.1,
     filterwise_dropout: bool = True,
     use_gp_layer: bool = True,
-    gp_hidden_dim: int = 1024,
+    gp_hidden_dim: int = 256,
     gp_scale: float = 1.0,
     gp_bias: float = 0.0,
     gp_input_normalization: bool = False,
@@ -284,7 +284,6 @@ def resnet50_sngp(
     spec_norm_iteration: int = 1,
     spec_norm_bound: float = 6,
     omit_last_layer: bool = False,
-    seed: int = 123456789,
 ) -> tf.keras.Model:
     """Builds ResNet50.
 
@@ -326,8 +325,6 @@ def resnet50_sngp(
     Returns:
       tf.keras.Model.
     """
-    tf.random.set_seed(seed)
-
     dropout_layer = functools.partial(
         MonteCarloDropout,
         dropout_rate=dropout_rate,

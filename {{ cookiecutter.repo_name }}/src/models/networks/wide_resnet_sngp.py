@@ -67,7 +67,7 @@ def make_conv2d_layer(
 
 def apply_dropout(inputs, dropout_rate: float = 0.1, use_mc_dropout: bool = False):
     """Applies a filter-wise dropout layer to the inputs."""
-    #logging.info("apply_dropout input shape %s", inputs.shape)
+    # logging.info("apply_dropout input shape %s", inputs.shape)
     dropout_layer = tf.keras.layers.Dropout(
         dropout_rate, noise_shape=[inputs.shape[0], 1, 1, inputs.shape[3]]
     )
@@ -163,14 +163,14 @@ def wide_resnet_sngp(
     batch_size: int,
     num_classes: int,
     depth: int = 28,
-    width_multiplier: int = 5, #10,
+    width_multiplier: int = 5,  # 10,
     l2: float = 3e-4,
     use_mc_dropout: bool = False,
     dropout_rate: float = 0.1,
     filterwise_dropout: bool = True,
     use_gp_layer: bool = True,
     gp_input_dim: int = -1,
-    gp_hidden_dim: int = 256, #1024,
+    gp_hidden_dim: int = 256,  # 1024,
     gp_scale: float = 1.0,
     gp_bias: float = 0.0,
     gp_input_normalization: bool = False,
@@ -182,8 +182,7 @@ def wide_resnet_sngp(
     spec_norm_iteration: int = 1,
     spec_norm_bound: float = 6,
     # omit_last_layer: bool = False,
-    seed: int = 123456789,
-):
+) -> tf.keras.models.Model:
     """Builds Wide ResNet.
 
     Following Zagoruyko and Komodakis (2016), it accepts a width multiplier on the
@@ -226,7 +225,6 @@ def wide_resnet_sngp(
     Returns:
       tf.keras.Model.
     """
-    tf.random.set_seed(seed)
 
     Conv2D = make_conv2d_layer(
         use_spec_norm,  # pylint: disable=invalid-name

@@ -152,7 +152,6 @@ def wide_resnet_heteroscedastic(
     num_mc_samples: int = 5000,
     multiclass: bool = True,
     eps: float = 1e-5,
-    seed: int = 123456789,
     hps: Optional[Dict[str, float]] = None,
 ) -> tf.keras.models.Model:
     """Builds Wide ResNet.
@@ -189,7 +188,6 @@ def wide_resnet_heteroscedastic(
     Returns:
       tf.keras.Model.
     """
-    tf.random.set_seed(seed)
     l2_reg = tf.keras.regularizers.l2
     hps = _parse_hyperparameters(l2, hps)
 
@@ -285,7 +283,6 @@ def create_model(
     num_mc_samples: int = 5000,
     multiclass: bool = True,
     eps: float = 1e-5,
-    seed: int = 123456789,
     **unused_kwargs: Dict[str, Any]
 ) -> tf.keras.models.Model:
     """Creates model."""
@@ -302,5 +299,4 @@ def create_model(
         num_mc_samples=num_mc_samples,
         multiclass=multiclass,
         eps=eps,
-        seed=seed,
     )

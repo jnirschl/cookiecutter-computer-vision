@@ -6,15 +6,13 @@ from tensorflow.keras import layers
 
 def unet_xception(
     input_shape: tuple,
-    n_classes: int,
+    num_classes: int,
     padding: str = "same",
     downsample: int = 2,
-    seed: int = 123456789,
-):
+)-> tf.keras.models.Model:
     """
     From https://keras.io/examples/vision/oxford_pets_image_segmentation/#prepare-unet-xceptionstyle-model
     """
-    tf.random.set_seed(seed)
     inputs = layers.Input(shape=input_shape)
 
     ### [First half of the network: downsampling inputs] ###
@@ -67,10 +65,10 @@ def unet_xception(
         previous_block_activation = x  # Set aside next residual
 
     # Add a per-pixel classification layer
-    outputs = layers.Conv2D(n_classes, 3, activation="softmax", padding=padding)(x)
+    outputs = layers.Conv2D(num_classes, 3, activation=None, padding=padding)(x)
 
     # tf.keras.backend.clear_session()
-    return tf.keras.Model(inputs, outputs)
+    return tf.keras.Model(inputs, outputs, name="unet_xception")
 
 
 # def build_unet(input_shape):

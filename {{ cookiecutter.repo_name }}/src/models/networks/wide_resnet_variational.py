@@ -112,7 +112,6 @@ def wide_resnet_variational(
     prior_stddev,
     dataset_size,
     stddev_init,
-    seed: int = 123456789,
 ):
     """Builds Wide ResNet.
 
@@ -135,7 +134,6 @@ def wide_resnet_variational(
     Returns:
       tf.keras.Model.
     """
-    tf.random.set_seed(seed)
 
     if (depth - 4) % 6 != 0:
         raise ValueError("depth should be 6n+4 (e.g., 16, 22, 28, 40).")

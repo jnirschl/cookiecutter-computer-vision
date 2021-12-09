@@ -184,8 +184,7 @@ def wide_resnet_hetsngp(
     eps=1e-5,
     sngp_var_weight=1.0,
     het_var_weight=1.0,
-    seed: int = 123456789,
-):
+)-> tf.keras.models.Model:
     """Builds Wide ResNet HetSNGP.
 
     Following Zagoruyko and Komodakis (2016), it accepts a width multiplier on the
@@ -238,7 +237,6 @@ def wide_resnet_hetsngp(
     Returns:
       tf.keras.Model.
     """
-    tf.random.set_seed(seed)
     Conv2D = make_conv2d_layer(
         use_spec_norm,  # pylint: disable=invalid-name
         spec_norm_iteration,

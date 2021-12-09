@@ -158,7 +158,6 @@ def wide_resnet_sngp_be(
     use_spec_norm,
     spec_norm_iteration,
     spec_norm_bound,
-    seed: int = 123456789,
 ):
     """Builds Wide ResNet.
 
@@ -199,7 +198,6 @@ def wide_resnet_sngp_be(
     Returns:
       tf.keras.Model.
     """
-    tf.random.set_seed(seed)
 
     Conv2DBatchEnsemble = make_conv2d_batchensemble_layer(
         use_spec_norm, spec_norm_iteration, spec_norm_bound
