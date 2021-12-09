@@ -90,9 +90,8 @@ def fit(
             num_classes=params["n_classes"],
             seed=params["random_seed"],
         )
-        optimizer = tf.keras.optimizers.Adam(train_params["learning_rate"]),
         model.compile(
-            optimizer=optimizer,
+            optimizer=tf.keras.optimizers.Adam(train_params["learning_rate"]),
             loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
             metrics=["accuracy"],
         )
