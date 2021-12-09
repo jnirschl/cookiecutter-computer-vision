@@ -43,7 +43,7 @@ def tf_resize_pair(img, mask, height, width, resize_method=image.ResizeMethod.BI
 def random_crop(img, IMG_HEIGHT=224, IMG_WIDTH=224, IMG_CH=3):
     """Accept and image as tf.data.tensor_slices and returns
     the image with random cropping applied"""
-    return tf.image.random_crop(img, size=[1, IMG_HEIGHT, IMG_WIDTH, IMG_CH])
+    return tf.image.random_crop(img, size=[ IMG_HEIGHT, IMG_WIDTH, IMG_CH])
 
 
 def random_crop_pair(img, mask, IMG_HEIGHT=224, IMG_WIDTH=224, IMG_CH=3):
@@ -102,7 +102,7 @@ def apply_transforms(img, label, input_shape, mean, std, max_delta=0.2):
     new_size = np.random.randint(
         input_shape[0], np.round(input_shape[0] * 1.25).astype(np.int)
     )
-    # img = tf_resize(img, height=new_size, width=new_size)
+    img = tf_resize(img, height=new_size, width=new_size)
 
     # random flip up-down
     if tf.random.uniform(()) > 0.5:
@@ -112,21 +112,21 @@ def apply_transforms(img, label, input_shape, mean, std, max_delta=0.2):
         img = tf.image.flip_left_right(img)
 
     # random rotate
-    # img = tfa.image.rotate(
-    #     img,
-    #     tf.constant(np.pi / np.random.randint(1, 8)),
-    #     interpolation="nearest",
-    #     fill_mode="reflect",
-    #     name="random_rotate",
-    # )
+    img = tfa.image.rotate(
+        img,
+        tf.constant(np.pi / np.random.randint(1, 8)),
+        interpolation="nearest",
+        fill_mode="reflect",
+        name="random_rotate",
+    )
 
-    # # random crop
-    # img = random_crop(
-    #     img,
-    #     IMG_HEIGHT=input_shape[0],
-    #     IMG_WIDTH=input_shape[1],
-    #     IMG_CH=input_shape[2],
-    # )
+    # random crop
+    img = random_crop(
+        img,
+        IMG_HEIGHT=input_shape[0],
+        IMG_WIDTH=input_shape[1],
+        IMG_CH=input_shape[2],
+    )
 
     # random brightness, contrast
     img = tf.image.random_brightness(img, max_delta=max_delta)
