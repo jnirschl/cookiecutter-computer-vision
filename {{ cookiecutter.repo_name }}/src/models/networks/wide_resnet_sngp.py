@@ -15,11 +15,10 @@
 
 """Wide ResNet with SNGP."""
 import functools
-from absl import logging
 
 import edward2 as ed
 import tensorflow as tf
-
+from absl import logging
 
 # pylint: disable=invalid-name
 BatchNormalization = functools.partial(

@@ -16,6 +16,7 @@
 """Tests for WRN 28-10 with Monte Carlo dropout."""
 
 import tensorflow as tf
+
 from src.models import networks
 
 

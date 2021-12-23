@@ -17,6 +17,7 @@
 # TODO(trandustin): Merge with resnet50.py.
 
 import string
+
 import tensorflow as tf
 
 # Use batch normalization defaults from Pytorch.

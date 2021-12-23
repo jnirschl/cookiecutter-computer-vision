@@ -3,11 +3,10 @@
 import logging
 
 import pandas as pd
-
 import tensorflow as tf
 
-from src.img.tfreader import tf_imread, tf_imreadpair
 from src.img.augment import apply_transforms, apply_transforms_pair
+from src.img.tfreader import tf_imread, tf_imreadpair
 
 
 def create_dataset(

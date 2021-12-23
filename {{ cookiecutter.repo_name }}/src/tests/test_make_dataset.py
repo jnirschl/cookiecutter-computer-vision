@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 import os.path
+from pathlib import Path
 
 import pandas as pd
 import pytest
-from pathlib import Path
 from click.testing import CliRunner
 
 from src.data import make_dataset

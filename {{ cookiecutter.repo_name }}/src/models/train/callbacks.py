@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 
-import os
-import click
-from dotenv import find_dotenv, load_dotenv
-from codetiming import Timer
 import logging
+import os
+from functools import partial
 from pathlib import Path
 
-from functools import partial
-
+import click
 import tensorflow as tf
+from codetiming import Timer
+from dotenv import find_dotenv, load_dotenv
 
 from src.data import load_params
 

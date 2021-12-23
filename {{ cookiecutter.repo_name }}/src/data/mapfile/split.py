@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-import os
 import logging
-import numpy as np
+import os
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 from sklearn.model_selection import StratifiedKFold
 

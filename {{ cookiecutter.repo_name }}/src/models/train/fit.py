@@ -1,25 +1,21 @@
 #!/usr/bin/env python3
 
-import os
-import click
-from dotenv import find_dotenv, load_dotenv
-from codetiming import Timer
 import logging
+import os
 from pathlib import Path
 
-import tensorflow as tf
-from tensorflow.data import AUTOTUNE
-from keras.utils.layer_utils import count_params
-
+import click
 import numpy as np
+import tensorflow as tf
 import weightwatcher as ww
+from codetiming import Timer
+from dotenv import find_dotenv, load_dotenv
+from keras.utils.layer_utils import count_params
+from tensorflow.data import AUTOTUNE
 
 # load custom libraries from src
-from src.data import load_data, save_metrics
-
-from src.data import load_params, tfdata
-from src.models import networks
-from src.models import train
+from src.data import load_data, load_params, save_metrics, tfdata
+from src.models import networks, train
 
 # set tf warning options
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"

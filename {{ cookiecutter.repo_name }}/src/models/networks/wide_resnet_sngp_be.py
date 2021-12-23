@@ -15,6 +15,7 @@
 
 """Wide ResNet with SNGP and BatchEnsemble."""
 import functools
+
 import edward2 as ed
 import tensorflow as tf
 

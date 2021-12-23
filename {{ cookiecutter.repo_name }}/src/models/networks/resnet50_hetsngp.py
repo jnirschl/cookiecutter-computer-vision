@@ -20,7 +20,6 @@ import string
 import edward2 as ed
 import tensorflow as tf
 
-
 # Use batch normalization defaults from Pytorch.
 BATCH_NORM_DECAY = 0.9
 BATCH_NORM_EPSILON = 1e-5

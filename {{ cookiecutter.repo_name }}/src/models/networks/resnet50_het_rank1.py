@@ -41,6 +41,7 @@ References:
 """
 import functools
 import string
+
 import edward2 as ed
 import tensorflow as tf
 from uncertainty_baselines.models import rank1_bnn_utils

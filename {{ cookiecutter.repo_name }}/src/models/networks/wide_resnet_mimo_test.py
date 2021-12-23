@@ -15,8 +15,8 @@
 
 """Tests for MIMO on Wide ResNet."""
 import tensorflow as tf
-from src.models import networks
 
+from src.models import networks
 
 if __name__ == "__main__":
     tf.test.main()

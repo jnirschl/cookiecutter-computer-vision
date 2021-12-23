@@ -11,3 +11,4 @@ Sphinxcontrib-napoleon-0.7
 # code formatting
 black~=3.4.1
 black[d]~=3.4.1
+isort

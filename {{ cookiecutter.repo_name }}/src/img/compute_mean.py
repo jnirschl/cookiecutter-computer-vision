@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 
-import os
-import click
 import logging
+import os
 from pathlib import Path
 
+import click
 import cv2
 import numpy as np
 import pandas as pd
-
 # Specify opencv optimization
 from dotenv import find_dotenv, load_dotenv
 

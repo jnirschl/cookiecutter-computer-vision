@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
+import albumentations as Alb
 import numpy as np
 import tensorflow as tf
-from tensorflow import image
 import tensorflow_addons as tfa
-import albumentations as Alb
+from tensorflow import image
 
 # from src.img import tf_normalize
 

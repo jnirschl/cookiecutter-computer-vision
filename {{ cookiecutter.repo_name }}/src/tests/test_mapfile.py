@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 
 import os
+from pathlib import Path
 
 import pandas as pd
 import pytest
-from pathlib import Path
-
 
 from src.data import mapfile
 

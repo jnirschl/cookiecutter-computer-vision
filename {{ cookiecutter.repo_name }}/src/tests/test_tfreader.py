@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import pytest
-from pathlib import Path
 import tensorflow as tf
 
-from src.img.tfreader import tf_imread, tf_dataset, tf_imreadpair
+from src.img.tfreader import tf_dataset, tf_imread, tf_imreadpair
 
 
 @pytest.fixture

@@ -15,9 +15,8 @@
 
 """TF Keras definition for Resnet-20 for CIFAR."""
 
-from typing import Any, Dict, Iterable
-
 import functools
+from typing import Any, Dict, Iterable
 
 import edward2 as ed
 import tensorflow as tf

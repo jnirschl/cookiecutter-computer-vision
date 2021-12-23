@@ -15,6 +15,7 @@
 
 """Wide ResNet with dropout."""
 import functools
+
 import tensorflow as tf
 
 BatchNormalization = functools.partial(  # pylint: disable=invalid-name

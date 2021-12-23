@@ -16,6 +16,7 @@
 """Tests for uncertainty_baselines.models.resnet20."""
 
 import tensorflow as tf
+
 from src.models import networks
 
 

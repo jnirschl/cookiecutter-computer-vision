@@ -16,6 +16,7 @@
 """Tests for BatchEnsemble on a Wide ResNet."""
 
 import tensorflow as tf
+
 from src.models import networks
 
 

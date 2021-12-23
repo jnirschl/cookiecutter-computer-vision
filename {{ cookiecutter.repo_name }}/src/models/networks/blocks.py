@@ -1,14 +1,8 @@
 #!/usr/bin/env python3
 
-from tensorflow.keras.layers import (
-    Conv2D,
-    BatchNormalization,
-    Activation,
-    MaxPool2D,
-    Conv2DTranspose,
-    Concatenate,
-    Input,
-)
+from tensorflow.keras.layers import (Activation, BatchNormalization,
+                                     Concatenate, Conv2D, Conv2DTranspose,
+                                     Input, MaxPool2D)
 from tensorflow.keras.models import Model
 
 

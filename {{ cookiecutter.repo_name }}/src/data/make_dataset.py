@@ -2,15 +2,15 @@
 
 import logging
 import os
-import numpy as np
 from pathlib import Path
 
 import click
+import numpy as np
 import pandas as pd
 from dotenv import find_dotenv, load_dotenv
 
 # load custom libraries from src
-from src.data import mapfile, load_params, save_params
+from src.data import load_params, mapfile, save_params
 from src.img import compute_mean
 
 # set tf warning options

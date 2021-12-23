@@ -15,8 +15,9 @@
 
 """Wide ResNet architecture with multiple input and outputs."""
 import functools
-from edward2.experimental.mimo import layers
+
 import tensorflow as tf
+from edward2.experimental.mimo import layers
 
 BatchNormalization = functools.partial(  # pylint: disable=invalid-name
     tf.keras.layers.BatchNormalization,

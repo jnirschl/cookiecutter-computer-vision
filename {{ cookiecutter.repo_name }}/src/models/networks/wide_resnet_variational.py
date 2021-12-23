@@ -15,9 +15,10 @@
 
 """Wide ResNet with variational Bayesian layers."""
 import functools
-from absl import logging
+
 import numpy as np
 import tensorflow as tf
+from absl import logging
 
 try:
     import edward2 as ed  # pylint: disable=g-import-not-at-top

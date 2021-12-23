@@ -22,14 +22,13 @@ https://github.com/pytorch/vision/blob/master/torchvision/models/resnet.py
 Here we add Dropout layers after each ReLU nonlinearity.
 """
 
-from typing import Type, Any, Callable, Union, List, Optional
+from typing import Any, Callable, List, Optional, Type, Union
 
 import torch
-from torch import Tensor
 import torch.nn as nn
+from torch import Tensor
 from torch.nn import Dropout2d
-from torchvision.models.resnet import conv1x1
-from torchvision.models.resnet import conv3x3
+from torchvision.models.resnet import conv1x1, conv3x3
 
 
 class BasicBlock(nn.Module):

@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 
-import os
-import click
-import cv2
-from dotenv import find_dotenv, load_dotenv
 import logging
-import numpy as np
+import os
 from pathlib import Path
 
+import click
+import cv2
+import numpy as np
 import tensorflow as tf
-
+from dotenv import find_dotenv, load_dotenv
 from MightyMosaic import MightyMosaic
 
 # load custom libraries from src

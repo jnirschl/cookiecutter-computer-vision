@@ -16,6 +16,7 @@
 """Tests for HetSNGP ResNet-50."""
 
 import tensorflow as tf
+
 from src.models import networks
 
 

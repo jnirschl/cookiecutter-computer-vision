@@ -16,6 +16,7 @@
 """Tests for variational inference."""
 
 import tensorflow as tf
+
 from src.models import networks
 
 

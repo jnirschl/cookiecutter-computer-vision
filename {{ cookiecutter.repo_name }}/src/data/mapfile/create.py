@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 
+import logging
 import os
 from glob import glob
-import logging
-import pandas as pd
 from pathlib import Path
-import yaml
 
-from tensorflow.keras.preprocessing.image import DirectoryIterator, ImageDataGenerator
+import pandas as pd
+import yaml
+from tensorflow.keras.preprocessing.image import (DirectoryIterator,
+                                                  ImageDataGenerator)
 
 from src.data import load_params
 

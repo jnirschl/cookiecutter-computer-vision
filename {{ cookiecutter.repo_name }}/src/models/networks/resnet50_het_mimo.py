@@ -16,6 +16,7 @@
 """ResNet50 model."""
 
 import string
+
 import edward2 as ed
 import tensorflow as tf
 

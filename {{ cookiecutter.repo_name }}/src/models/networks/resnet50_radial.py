@@ -20,14 +20,13 @@
 
 import functools
 import string
-from absl import logging
 
 import numpy as np
 import tensorflow as tf
-
+from absl import logging
 from uncertainty_baselines.models.radial_utils import TrainableHeRadial
-from uncertainty_baselines.models.variational_utils import get_kernel_regularizer_class
-from uncertainty_baselines.models.variational_utils import init_kernel_regularizer
+from uncertainty_baselines.models.variational_utils import (
+    get_kernel_regularizer_class, init_kernel_regularizer)
 
 try:
     import edward2 as ed  # pylint: disable=g-import-not-at-top

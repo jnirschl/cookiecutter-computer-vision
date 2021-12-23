@@ -16,6 +16,7 @@
 """Unet model."""
 
 from typing import Iterable
+
 import tensorflow as tf
 
 

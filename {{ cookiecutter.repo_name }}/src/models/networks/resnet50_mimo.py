@@ -16,8 +16,9 @@
 """ResNet50 model."""
 
 import string
-from edward2.experimental.mimo import layers
+
 import tensorflow as tf
+from edward2.experimental.mimo import layers
 
 # Use batch normalization defaults from Pytorch.
 BATCH_NORM_DECAY = 0.9

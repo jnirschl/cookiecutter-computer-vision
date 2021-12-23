@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
 
-import cv2
-from click.testing import CliRunner
 from pathlib import Path
-import pytest
 
-from src.data import mapfile, load_params
+import cv2
+import pytest
+from click.testing import CliRunner
+
+from src.data import load_params, mapfile
 from src.img import compute_mean
 
 
