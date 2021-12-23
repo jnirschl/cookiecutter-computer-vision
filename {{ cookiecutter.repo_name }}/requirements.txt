@@ -20,9 +20,3 @@ tensorflow==2.7.0
 tensorflow-addons==0.14.0
 pillow==8.2.0
 opencv-contrib-python~=4.5.2.52
-{% if cookiecutter.python_interpreter != 'python3' %}
-
-
-# backwards compatibility
-pathlib2
-{% endif %}
