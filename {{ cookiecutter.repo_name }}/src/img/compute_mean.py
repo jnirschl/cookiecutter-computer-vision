@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import logging
-import os
 from pathlib import Path
 
 import click
@@ -87,7 +86,7 @@ def mean_subfun(mapfile_df, img_shape, FORMAT):
         mean_img = cv2.accumulate(img.astype(dtype=np.float32), mean_img)
 
     logger = logging.getLogger(__name__)
-    logger.info(f"Processed {idx+1} images.")
+    logger.info(f"Processed {idx + 1} images.")
 
     # divide by n_images
     mean_img = np.divide(mean_img, idx + 1).astype(np.uint8)
@@ -120,6 +119,9 @@ def std_subfun(mean_img, mapfile_df, img_shape, FORMAT):
                 logger.info(f"Resizing images to: {img_shape}")  # print once
                 logging_flag = True
             img = cv2.resize(img, img_shape[0:2], interpolation=cv2.INTER_AREA)
+
+        if idx % 1000 == 0:
+            logger.info(f"Processed {idx + 1} images.")
 
         if img.shape != mean_img.shape:
             img = np.reshape(img, mean_img.shape)
