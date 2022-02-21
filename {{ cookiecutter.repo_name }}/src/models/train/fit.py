@@ -84,7 +84,6 @@ def fit(
         model = networks.unet(
             input_shape=params["target_size"],
             num_classes=params["n_classes"],
-            seed=params["random_seed"],
         )
         model.compile(
             optimizer=tf.keras.optimizers.Adam(train_params["learning_rate"]),
@@ -96,7 +95,6 @@ def fit(
             input_shape=params["target_size"],
             batch_size=batch_size,
             num_classes=params["n_classes"],
-            seed=params["random_seed"],
         )
         model.compile(
             optimizer=tf.keras.optimizers.Adam(train_params["learning_rate"]),

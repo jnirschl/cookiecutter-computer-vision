@@ -41,7 +41,6 @@ class UnetTest(tf.test.TestCase):
             input_shape=input_shape,
             filters=[512, 256, 128, 64],
             num_classes=num_classes,
-            seed=random_seed,
         )
 
         model.compile(
