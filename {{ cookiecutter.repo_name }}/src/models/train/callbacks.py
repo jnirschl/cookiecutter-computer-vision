@@ -34,7 +34,7 @@ def set(params_filepath="params.yaml"):
                 tf.keras.callbacks.EarlyStopping(
                     monitor=callback_params["monitor"],
                     min_delta=0,
-                    patience=15,
+                    patience=callback_params["patience"],
                     verbose=1,
                     mode=callback_params["mode"],
                     baseline=None,

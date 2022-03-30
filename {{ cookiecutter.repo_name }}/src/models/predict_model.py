@@ -19,14 +19,15 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 
 def predict(
-    input_dir,
-    model_path,
-    params_filepath="params.yaml",
-    results_dir="./results",
-    file_ext="png",
-    overlap_factor=4,
+    input_dir: str,
+    model_path: str,
+    params_filepath: str = "params.yaml",
+    results_dir: str = "./results",
+    file_ext: str = "png",
+    overlap_factor: int = 2,
+    batch_size: int = 2,
 ):
-    """Accept input directory and trained model, and save predicted ouput images."""
+    """Accept input directory and trained model, and save predicted output images."""
 
     # resolve directories
     input_dir = Path(input_dir).resolve()
@@ -52,6 +53,7 @@ def predict(
 
     file_list = input_dir.glob("*." + file_ext.replace(".", ""))
     for file in file_list:
+        # logger.info(f"Found {len(list(file_list))} images.")
         temp_filepath = Path(file).resolve()
         if temp_filepath.is_file():
             img = cv2.imread(str(temp_filepath), cv2.IMREAD_COLOR)
@@ -61,7 +63,9 @@ def predict(
             mosaic = MightyMosaic.from_array(
                 img_std, target_size[0:2], overlap_factor=overlap_factor
             )
-            prediction = mosaic.apply(model.predict, progress_bar=True, batch_size=32)
+            prediction = mosaic.apply(
+                model.predict, progress_bar=True, batch_size=batch_size
+            )
             pred_img = prediction.get_fusion()[:, :, 1]
             pred_img = cv2.normalize(pred_img, None, 0, 255, cv2.NORM_MINMAX)
 
@@ -79,16 +83,14 @@ def predict(
     # help="Filepath to the CSV with image filenames and class labels.",
 )
 @click.argument(
-    "model_path",
-    type=click.Path(exists=True),
+    "model_path", type=click.Path(exists=True),
 )
 @click.option("--params_filepath", "-p", default="params.yaml")
 @click.option("--file_ext", default="png")
-@click.option("--overlap_factor", default=8)
+@click.option("--overlap_factor", default=4)
+@click.option("--batch_size", "-b", default=16)
 @click.option(
-    "--results-dir",
-    default=Path("./results").resolve(),
-    type=click.Path(),
+    "--results-dir", "-r", default=Path("./results").resolve(), type=click.Path(),
 )
 def main(
     input_dir,
@@ -96,7 +98,8 @@ def main(
     params_filepath="params.yaml",
     results_dir="./results",
     file_ext="png",
-    overlap_factor=4,
+    overlap_factor=2,
+    batch_size=8,
 ):
     predict(
         input_dir,
@@ -105,6 +108,7 @@ def main(
         results_dir=results_dir,
         file_ext=file_ext,
         overlap_factor=overlap_factor,
+        batch_size=batch_size,
     )
 
 
