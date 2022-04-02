@@ -87,7 +87,7 @@ def fit(
         )
         model.compile(
             optimizer=tf.keras.optimizers.Adam(train_params["learning_rate"]),
-            loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+            loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
             metrics=["accuracy"],
         )
     else:
@@ -102,8 +102,8 @@ def fit(
             metrics=["accuracy"],
         )
 
-    if debug:
-        logger.info(model.summary())
+    # if debug:
+    #     logger.info(model.summary())
 
     # set callbacks
     callbacks = train.callbacks.set(params_filepath=params_filepath)
@@ -111,7 +111,7 @@ def fit(
     # train model and compute overall training time
     t = Timer(name="Training", text="{name}: {:.4f} seconds", logger=None)
     t.start()
-    logger.info(f"Training model for {epochs} epochs")
+    logger.info(f"Training model ({params['model_name']}) for {epochs} epochs")
     history = model.fit(
         train_dataset,
         batch_size=batch_size,
@@ -132,13 +132,14 @@ def fit(
     if debug:
         ww_summary = {"debug": True}
     else:
-        watcher = ww.WeightWatcher(model=model)
-        results = watcher.analyze()
-
-        ww_summary = watcher.get_summary()
-        details = watcher.get_details()
-        warning_df = details[details.warning != ""][["layer_id", "name", "warning"]]
-        warning_df.to_csv(results_dir.joinpath("layer_warnings.csv"))
+        ww_summary = {"debug": True}
+        # watcher = ww.WeightWatcher(model=model)
+        # results = watcher.analyze()
+        #
+        # ww_summary = watcher.get_summary()
+        # details = watcher.get_details()
+        # warning_df = details[details.warning != ""][["layer_id", "name", "warning"]]
+        # warning_df.to_csv(results_dir.joinpath("layer_warnings.csv"))
 
     # update metrics.json
     metrics_filepath = results_dir.joinpath(f"{metrics_file}")
@@ -174,8 +175,8 @@ def fit(
     if not model_dir.exists():
         model_dir.mkdir()
 
-    if not debug:
-        model.save(model_filename, save_format="tf")
+    # if not debug:
+    model.save(model_filename, save_format="tf")
 
     return history
 

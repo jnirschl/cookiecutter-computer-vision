@@ -145,7 +145,7 @@ def unet(
 
         # This is the last layer of the model
         last = tf.keras.layers.Conv2DTranspose(
-            output_channels, 3, strides=2, activation=None, padding="same"
+            output_channels, 3, strides=2, activation="softmax", padding="same"
         )  # 64x64 -> 128x128
 
         x = last(x)

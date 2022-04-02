@@ -78,6 +78,9 @@ def mean_subfun(mapfile_df, img_shape, FORMAT):
         if img.shape != mean_img.shape:
             img = np.reshape(img, mean_img.shape)
 
+        if idx % 10000 == 0:
+            logger.info(f"Processed {idx + 1} images.")
+
         # ensure image is valid
         if img is None:
             raise ValueError(f"Error loading image:\t{filename}")
@@ -120,11 +123,11 @@ def std_subfun(mean_img, mapfile_df, img_shape, FORMAT):
                 logging_flag = True
             img = cv2.resize(img, img_shape[0:2], interpolation=cv2.INTER_AREA)
 
-        if idx % 1000 == 0:
-            logger.info(f"Processed {idx + 1} images.")
-
         if img.shape != mean_img.shape:
             img = np.reshape(img, mean_img.shape)
+
+        if idx % 10000 == 0:
+            logger.info(f"Processed {idx + 1} images.")
 
         # ensure image is valid
         if img is None:
