@@ -110,28 +110,29 @@ def main(
         logger = logging.getLogger(__name__)
         logger.info(
             f"Creating slurm job submission file:\n"
-            f"Project directory:\t{input_dir}\n"
-            f"Job_submission_file:\t{job_submission_file.relative_to(input_dir)}\n"
-            f"#################### SETTINGS ####################\n"
-            f"#SBATCH --job-name='{job_name}'\n"
-            f"#SBATCH --partition='{partition}' --qos={qos}\n"
-            f"#SBATCH --nodelist='{nodelist}'\n"
-            f"#SBATCH --output=./logs/{job_name}_%j.out\n"
-            f"#SBATCH --error=./logs/{job_name}_%j.err\n"
-            f"#SBATCH --time={time}\n"
-            f"#SBATCH --nodes={nodes}\n"
-            f"#SBATCH --mem={mem}gb\n"
-            f"#SBATCH --cpus-per-task={cpu}\n"
-            f"#SBATCH --gres=gpu:'{gpu}'\n"
-            f"#SBATCH --mail-user='{email}'\n"
-            f"#SBATCH --mail-type='{mail_type.upper() if email else None}'\n"
+            f"\tProject directory:\t{input_dir}\n"
+            f"\tJob_submission_file:\t{job_submission_file}\n"
+            f"\t#################### SETTINGS ####################\n"
+            f"\t#SBATCH --job-name='{job_name}'\n"
+            f"\t#SBATCH --partition='{partition}' --qos={qos}\n"
+            f"\t#SBATCH --nodelist='{nodelist}'\n"
+            f"\t#SBATCH --output=./logs/{job_name}_%j.out\n"
+            f"\t#SBATCH --error=./logs/{job_name}_%j.err\n"
+            f"\t#SBATCH --time={time}\n"
+            f"\t#SBATCH --nodes={nodes}\n"
+            f"\t#SBATCH --mem={mem}gb\n"
+            f"\t#SBATCH --cpus-per-task={cpu}\n"
+            f"\t#SBATCH --gres=gpu:'{gpu}'\n"
+            f"\t#SBATCH --mail-user='{email}'\n"
+            f"\t#SBATCH --mail-type='{mail_type.upper() if email else None}'\n"
         )
+        logger.info(f"Setting up slurm job submission to use conda env {conda_env}")
 
     # scratch = os.environ["SCRATCH"]
     # data_dir = os.path.join(scratch, "/project/LizardLips")
 
     with open(job_submission_file, "w") as fh:
-        fh.writelines("#!/bin/bash\n# -*- coding: utf-8 -*-\nset -euo pipefail\n\n")
+        fh.writelines("#!/bin/bash\n# -*- coding: utf-8 -*-\nset -o pipefail\n\n")
         fh.writelines(
             f"#SBATCH --job-name='{job_name}'\n"
             f"#SBATCH --partition='{partition}' --qos={qos}\n"
@@ -157,7 +158,7 @@ def main(
         if verbose:
             fh.writelines(
                 "\n# print information\n"
-                'echo - e "SLURM_JOBID:\\t$SLURM_JOBID\n'
+                'echo -e "SLURM_JOBID:\\t$SLURM_JOBID\n'
                 "SLURM_JOB_NODELIST:\\t$SLURM_JOB_NODELIST\n"
                 "SLURM_NNODES:\\t$SLURM_NNODES\n"
                 "SLURMTMPDIR:\\t$SLURMTMPDIR\n"
@@ -176,6 +177,7 @@ def main(
                 "#srun /usr/local/cuda/samples/1_Utilities/deviceQuery/deviceQuery\n\n"
             )
 
+
         fh.writelines(
             'echo -e "Resources are allocated."\n'
             f'echo -e "Activating conda environment {conda_env}."\n'
@@ -185,7 +187,6 @@ def main(
 
         if code.lower() == "dvc":
             if verbose:
-                logger = logging.getLogger(__name__)
                 logger.info(f"Setting up slurm job submission to run DVC")
 
             fh.writelines(
@@ -197,7 +198,6 @@ def main(
             )
         elif code.lower() == "jupyter":
             if verbose:
-                logger = logging.getLogger(__name__)
                 logger.info(
                     f"Setting up slurm job submission to host Jupyter lab "
                     f"listening on port:{port}, ip:{jupy_ip}"
@@ -212,7 +212,6 @@ def main(
             )
         else:
             if verbose:
-                logger = logging.getLogger(__name__)
                 logger.info(f"Setting up slurm job submission to run: " f"{code}")
                 fh.writelines(
                     'echo -e "Running code..."\n'
@@ -222,7 +221,6 @@ def main(
                 )
 
     if verbose:
-        logger = logging.getLogger(__name__)
         logger.info(
             f"Completed slurm job file creation:\t"
             f"{job_submission_file.relative_to(os.getcwd())}"
