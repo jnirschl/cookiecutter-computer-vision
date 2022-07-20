@@ -12,29 +12,69 @@ from dotenv import find_dotenv, load_dotenv
 @click.command()
 @click.argument(
     "input_dir",
-    default=Path("../").resolve(),
+    default=Path(__file__).resolve().parents[2],
     type=click.Path(exists=True),
 )
-@click.option("--code", default="dvc", type=str)
-@click.option("--conda_env", default="marvl_pytorch", type=str)
-@click.option("--cpu", "-c", default=2, type=int)
-@click.option("--email", "-e", default=None)
-@click.option("--gpu", "-g", default=None)
-@click.option("--jupy_ip", default="0.0.0.0", type=str)
-@click.option("--job_name", "-j", default="bash", type=str)
-@click.option("--mail-type", default="END,FAIL")
-@click.option("--mem", "-m", default=8, type=int)
-@click.option("--nodelist", "-nl", default="pasteur1", type=str)
-@click.option("--nodes", "-n", default=1, type=int)
-@click.option("--partition", "-p", default="pasteur", type=str)
-@click.option("--port", default=8800, type=int)
-@click.option("--qos", "-q", default="normal", type=str)
-@click.option("--time", "-t", default="2:00:00", type=str)
 @click.option(
-    "--verbose",
-    "-v",
-    is_flag=True,
-    help="Switch to toggle verbose output.",
+    "--code",
+    default="dvc",
+    type=str,
+    help="Specify custom code to run or indicate 'dvc' or 'jupyter' for for dvc repro or jupyter lab, respectively",
+)
+@click.option(
+    "--conda_env",
+    default="marvl_pytorch",
+    type=str,
+    help="Conda environment to activate before running code",
+)
+@click.option("--cpu", "-c", default=2, type=int, help="Number of cores per task")
+@click.option("--email", "-e", default=None, help="Email address for notifications")
+@click.option("--gpu", "-g", default=None, type=int, help="Number of GPUs requested")
+@click.option(
+    "--jupy_ip", default="0.0.0.0", type=str, help="IP address for jupyter lab hosting"
+)
+@click.option(
+    "--job_name", "-j", default="bash", type=str, help="Name for job submission"
+)
+@click.option(
+    "--mail-type",
+    default="END,FAIL",
+    type=str,
+    help="Events for email notification (NONE, BEGIN, END, FAIL, ALL)",
+)
+@click.option("--mem", "-m", default=8, type=int, help="RAM per processor")
+@click.option(
+    "--nodelist",
+    "-nl",
+    default="pasteur1"
+    if re.search("sail", os.environ["HOME"], re.IGNORECASE)
+    else None,
+)
+@click.option(
+    "--nodes", "-n", default=1, type=int, help="Maximum number of nodes to be allocated"
+)
+@click.option(
+    "--partition",
+    "-p",
+    default="pasteur"
+    if re.search("sail", os.environ["HOME"], re.IGNORECASE)
+    else "syyeung",
+    type=str,
+    help="Partition to use",
+)
+@click.option("--port", default=8800, type=int, help="Port for jupyter lab hosting")
+@click.option(
+    "--qos",
+    "-q",
+    default="normal",
+    type=str,
+    help="Slurm quality of service specification",
+)
+@click.option(
+    "--time", "-t", default="2:00:00", type=str, help="Wall time limit days-HH:mm:ss"
+)
+@click.option(
+    "--verbose", "-v", is_flag=True, help="Print verbose output.",
 )
 def main(
     input_dir: str,
@@ -48,7 +88,7 @@ def main(
     jupy_ip: str = "0.0.0.0",
     mail_type: str = "END,FAIL",
     mem: int = 16,
-    nodelist: str = "pasteur1",
+    nodelist=None,
     nodes: int = 1,
     partition: str = "pasteur",
     port: int = 8800,
@@ -58,21 +98,7 @@ def main(
 ) -> int:
     """Creates shell script for slurm job submission
 
-    Args:
-        code: specify code to run
-        conda_env: conda environment to activate before running code
-        cpu: Number of cores per task
-        email: Email address for notifications
-        gpu: GPUs requested
-        job_name: str = "bash",
-        mail_type: Mail events (NONE, BEGIN, END, FAIL, ALL)
-        mem: Memory (e.g., RAM) per processor
-        nodelist: Nodelist to use "pasteur1",
-        nodes: Maximum number of nodes to be allocated
-        partition: Partition to use
-        qos: str = "normal",
-        time: str = "2:00:00",
-        verbose: bool = False,
+    INPUT_DIR: Project directory containing src/hpc/
 
     Output: Creates shell script file for running slurm jobs
     """
@@ -83,8 +109,22 @@ def main(
     if verbose:
         logger = logging.getLogger(__name__)
         logger.info(
-            f"Creating slurm job submission file:\t"
-            f"{job_submission_file.relative_to(os.getcwd())}"
+            f"Creating slurm job submission file:\n"
+            f"Project directory:\t{input_dir}\n"
+            f"Job_submission_file:\t{job_submission_file.relative_to(input_dir)}\n"
+            f"#################### SETTINGS ####################\n"
+            f"#SBATCH --job-name='{job_name}'\n"
+            f"#SBATCH --partition='{partition}' --qos={qos}\n"
+            f"#SBATCH --nodelist='{nodelist}'\n"
+            f"#SBATCH --output=./logs/{job_name}_%j.out\n"
+            f"#SBATCH --error=./logs/{job_name}_%j.err\n"
+            f"#SBATCH --time={time}\n"
+            f"#SBATCH --nodes={nodes}\n"
+            f"#SBATCH --mem={mem}gb\n"
+            f"#SBATCH --cpus-per-task={cpu}\n"
+            f"#SBATCH --gres=gpu:'{gpu}'\n"
+            f"#SBATCH --mail-user='{email}'\n"
+            f"#SBATCH --mail-type='{mail_type.upper() if email else None}'\n"
         )
 
     # scratch = os.environ["SCRATCH"]

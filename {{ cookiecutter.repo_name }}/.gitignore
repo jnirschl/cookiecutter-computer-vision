@@ -93,11 +93,14 @@ target/
 # venv
 /venv/
 
-# exclude data and models from source control by default
+# exclude data, logs, models, and results from source control by default
 /data/
 /test_data/
-/models/
 /logs/
+/models/
+/results/
+/results/*.png
+/results/*.jpg
 
 # slurm logging
 *.out
