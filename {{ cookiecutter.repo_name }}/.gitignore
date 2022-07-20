@@ -75,11 +75,6 @@ target/
 # Jupyter NB Checkpoints
 .ipynb_checkpoints/
 
-# exclude data and models from source control by default
-/data/
-/models/
-
-
 # Mac OS-specific storage files
 .DS_Store
 
@@ -98,5 +93,13 @@ target/
 # venv
 /venv/
 
-# test data
+# exclude data and models from source control by default
+/data/
 /test_data/
+/models/
+/logs/
+
+# slurm logging
+*.out
+*.err
+slurm*.out
