@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 __all__ = ["simple_nn", "unet", "unet_xception", "resnet20"]
 
 from .resnet20 import resnet20

@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import numpy as np
 from scipy import ndimage
 from skimage.feature import peak_local_max

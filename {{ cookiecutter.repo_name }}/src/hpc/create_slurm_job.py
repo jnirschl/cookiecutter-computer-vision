@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import logging
 import os
 import re
@@ -10,11 +8,11 @@ from dotenv import find_dotenv, load_dotenv
 
 
 @click.command()
-@click.argument(
-    "input_dir",
-    default=Path(__file__).resolve().parents[2],
-    type=click.Path(exists=True),
-)
+# @click.argument(
+#     "input_dir",
+#     default=Path(__file__).resolve().parents[2],
+#     type=click.Path(exists=True),
+# )
 @click.option(
     "--code",
     default="dvc",
@@ -77,7 +75,6 @@ from dotenv import find_dotenv, load_dotenv
     "--verbose", "-v", is_flag=True, help="Print verbose output.",
 )
 def main(
-    input_dir: str,
     code: str = "dvc",
     conda_env: str = "marvl_pytorch",
     cpu: int = 2,
@@ -98,14 +95,15 @@ def main(
 ) -> int:
     """Creates shell script for slurm job submission
 
-    INPUT_DIR: Project directory containing src/hpc/
-
     Output: Creates shell script file for running slurm jobs
+    and returns exit code 0 if successful otherwise 1
     """
 
     validate_inputs(email, mail_type, partition, port, time)
+    working_dir = Path(__file__).resolve().parents[2]
+    script_dir = working_dir.joinpath("./src/hpc")
 
-    job_submission_file = Path("./src/hpc").joinpath(job_submission_file).resolve()
+    job_submission_file = script_dir.joinpath(job_submission_file).resolve()
     if verbose:
         logger = logging.getLogger(__name__)
         logger.info(
@@ -226,6 +224,8 @@ def main(
             f"{job_submission_file.relative_to(os.getcwd())}"
         )
         # os.system(f"sbatch {job_submission_file}")
+
+    return 0 if job_submission_file.exists() else 1
 
 
 def validate_inputs(email, mail_type, partition, port, time):

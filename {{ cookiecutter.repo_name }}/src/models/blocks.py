@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 from tensorflow.keras.layers import (Activation, BatchNormalization,
                                      Concatenate, Conv2D, Conv2DTranspose,
                                      Input, MaxPool2D)
