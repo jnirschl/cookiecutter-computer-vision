@@ -22,7 +22,7 @@ from dotenv import find_dotenv, load_dotenv
     help="Specify custom code to run or indicate 'dvc' or 'jupyter' for for dvc repro or jupyter lab, respectively",
 )
 @click.option(
-    "--conda_env",
+    "--conda-env",
     default="marvl_pytorch",
     type=str,
     help="Conda environment to activate before running code",
