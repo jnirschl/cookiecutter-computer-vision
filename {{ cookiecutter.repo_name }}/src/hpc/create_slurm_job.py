@@ -8,11 +8,6 @@ from dotenv import find_dotenv, load_dotenv
 
 
 @click.command()
-# @click.argument(
-#     "input_dir",
-#     default=Path(__file__).resolve().parents[2],
-#     type=click.Path(exists=True),
-# )
 @click.option(
     "--code",
     default="dvc",
@@ -96,21 +91,22 @@ def main(
     """Creates shell script for slurm job submission
 
     Output: Creates shell script file for running slurm jobs
-    and returns exit code 0 if successful otherwise 1
     """
 
-    input_dir = Path(__file__).resolve()
+    # set dirs
+    script_dir = Path(__file__).resolve().parents[0]  # project_dir/src/hpc
+    project_dir = script_dir.parents[2]  # project_dir/
+    conda_profile = Path.home().joinpath("miniconda3", "etc", "profile.d", "conda.sh")
 
+    # validate inputs
     validate_inputs(email, mail_type, partition, port, time)
-    working_dir = Path(__file__).resolve().parents[2]
-    script_dir = working_dir.joinpath("./src/hpc")
 
     job_submission_file = script_dir.joinpath(job_submission_file).resolve()
     if verbose:
         logger = logging.getLogger(__name__)
         logger.info(
             f"Creating slurm job submission file:\n"
-            f"\tProject directory:\t{input_dir}\n"
+            f"\tProject directory:\t{project_dir}\n"
             f"\tJob_submission_file:\t{job_submission_file}\n"
             f"\t#################### SETTINGS ####################\n"
             f"\t#SBATCH --job-name='{job_name}'\n"
@@ -171,14 +167,17 @@ def main(
 
             fh.writelines(
                 "# list the allocated gpu, if desired\n"
-                "#srun /usr/local/cuda/samples/1_Utilities/deviceQuery/deviceQuery\n\n"
+                "#srun /usr/local/cuda/samples/1_Utilities/deviceQuery/deviceQuery\n"
             )
 
         fh.writelines(
-            'echo -e "Resources are allocated."\n'
-            f'echo -e "Activating conda environment {conda_env}."\n'
-            "source $HOME/miniconda3/etc/profile.d/conda.sh\n"
-            f"conda activate {conda_env}\n\n"
+            '\necho -e "Resources are allocated."\n'
+            f"if [[ -f {conda_profile} ]]; then\n\t"
+            f'echo -e "Activating conda environment {conda_env}."\n\t'
+            f"source {conda_profile}\n\tconda activate {conda_env}\n"
+            f"else\n\t"
+            f"echo -e 'FileNotFoundError: {conda_profile}'\nexit 1\n"
+            "fi\n\n"
         )
 
         if code.lower() == "dvc":
@@ -186,10 +185,16 @@ def main(
                 logger.info(f"Setting up slurm job submission to run DVC")
 
             fh.writelines(
-                'echo -e "Running DVC repro..."\n'
-                f'cd "{Path(input_dir).resolve()}"\n'
+                '\n ## run dvc\necho -e "Running DVC repro..."\n'
+                f'cd "{Path(project_dir).resolve()}"\n'
                 "dvc pull -r origin\n"
                 "dvc repro\n\n"
+                "# Create report comparing metrics to master\n"
+                "git fetch --prune\n"
+                f"echo -e '# Report\\n## Parameters\\n' >> {project_dir.joinpath('reports', 'results.md')}\n"
+                f"dvc params diff master --show-md >> {project_dir.joinpath('reports', 'results.md')}\n"
+                f"dvc metrics diff --show-md master >> {project_dir.joinpath('reports', 'results.md')}\n"
+                "\n"
                 'echo -e "Exit code:\t$?"'
             )
         elif code.lower() == "jupyter":
@@ -200,9 +205,9 @@ def main(
                 )
 
             fh.writelines(
-                'echo -e "Running Jupyter Lab...\\n'
+                '\n## run jupyter\necho -e "Running Jupyter Lab...\\n'
                 f'\\tListening on port:{port} ip:{jupy_ip}"\n\n'
-                f'cd "{Path(input_dir).resolve()}"\n'
+                f'cd "{Path(project_dir).resolve()}"\n'
                 f"jupyter lab --port={port} --ip={jupy_ip}\n\n"
                 'echo -e "Exit code:\t$?"'
             )
@@ -211,7 +216,7 @@ def main(
                 logger.info(f"Setting up slurm job submission to run: " f"{code}")
                 fh.writelines(
                     'echo -e "Running code..."\n'
-                    f'cd "{Path(input_dir).resolve()}"\n'
+                    f'cd "{Path(project_dir).resolve()}"\n'
                     f"{code}\n\n"
                     'echo -e "Exit code:\t$?"'
                 )
@@ -222,8 +227,6 @@ def main(
             f"{job_submission_file.relative_to(os.getcwd())}"
         )
         # os.system(f"sbatch {job_submission_file}")
-
-    return 0 if job_submission_file.exists() else 1
 
 
 def validate_inputs(email, mail_type, partition, port, time):
