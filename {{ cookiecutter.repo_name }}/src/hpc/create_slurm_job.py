@@ -99,6 +99,8 @@ def main(
     and returns exit code 0 if successful otherwise 1
     """
 
+    input_dir = Path(__file__).resolve()
+
     validate_inputs(email, mail_type, partition, port, time)
     working_dir = Path(__file__).resolve().parents[2]
     script_dir = working_dir.joinpath("./src/hpc")
@@ -125,9 +127,6 @@ def main(
             f"\t#SBATCH --mail-type='{mail_type.upper() if email else None}'\n"
         )
         logger.info(f"Setting up slurm job submission to use conda env {conda_env}")
-
-    # scratch = os.environ["SCRATCH"]
-    # data_dir = os.path.join(scratch, "/project/LizardLips")
 
     with open(job_submission_file, "w") as fh:
         fh.writelines("#!/bin/bash\n# -*- coding: utf-8 -*-\nset -o pipefail\n\n")
@@ -174,7 +173,6 @@ def main(
                 "# list the allocated gpu, if desired\n"
                 "#srun /usr/local/cuda/samples/1_Utilities/deviceQuery/deviceQuery\n\n"
             )
-
 
         fh.writelines(
             'echo -e "Resources are allocated."\n'
