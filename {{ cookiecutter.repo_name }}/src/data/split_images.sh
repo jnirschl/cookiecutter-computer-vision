@@ -1,16 +1,53 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Copyright (c) 2021 Jeffrey J. Nirschl. All rights reserved.
-#
-# Licensed under the MIT license. See the LICENSE.md file in the project
-# root directory for full license information.
-#
-# Time-stamp: <2021-10-22 16:34:10 jjn>
-# ======================================================================
 set -euo pipefail
 
-INPUT_DIR=${1-"/home/jjn/Documents/GitHub/{{cookiecutter.repo_name}}/data/raw/"}
-TILE_SIZE=${2-256}
+# set default variables
+script_name=$(basename $0)
+script_version="0.0.1"
+INPUT_DIR=0
+TILE_SIZE=256
+
+####################
+# Help information
+####################
+Help()
+{
+   # Display Help
+   echo -e "Usage: $script_name [-d|t|h|V]\n
+   Configure git and conda for remote development on HPC cluster.\n
+   Options:
+   \td     input directory containing subfolders with unique classes for classification or
+           'data' and 'mask' for segmentation
+   \th     Print  Help.
+   \tt     Tile size for splitting images
+   \tV     Print software version and exit.\n"
+}
+
+####################
+# Process arguments
+####################
+while getopts "hd:t:V" option; do
+   case $option in
+      h) # display Help
+         Help
+         exit 0;;
+      d) # input directory
+        INPUT_DIR="$OPTARG";;
+  	  t) # tile size
+  	    TILE_SIZE="$OPTARG";;
+   	  V) # python version for conda
+   	    echo -e "$script_name $script_version"
+   	    exit 0;;
+      \?) # invalid option
+        echo "Error: Invalid option"
+        exit 1;;
+   esac
+done
+
+# Error checking: exit if the following vars not entered
+if [[ "$INPUT_DIR" == "0" ]]; then echo -e "Missing or invalid input argument -d Input directory (str)."; exit 1; fi
+if [[ "$TILE_SIZE" == "0" ]]; then echo -e "Invalid input argument -t Tile size (int)."; exit 1; fi
 
 find $INPUT_DIR -type f -name "*.png" | sort | while read FILE; do
   OUTPUT_FILE=$(echo -e $FILE | sed -e s/raw/processed/g)
