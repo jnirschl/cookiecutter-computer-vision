@@ -6,6 +6,7 @@ import cv2
 import numpy as np
 from dotenv import find_dotenv, load_dotenv
 from skimage.filters import threshold_multiotsu
+
 from src.img.morphology import bwareaopen
 from src.img.segmentation import filters, watershed
 

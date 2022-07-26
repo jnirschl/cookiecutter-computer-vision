@@ -65,7 +65,7 @@ def wide_resnet_mimo(
     width_multiplier,
     num_classes,
     ensemble_size,
-)-> tf.keras.models.Model:
+) -> tf.keras.models.Model:
     """Builds Wide ResNet with Sparse BatchEnsemble.
 
     Following Zagoruyko and Komodakis (2016), it accepts a width multiplier on the

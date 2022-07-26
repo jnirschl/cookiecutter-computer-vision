@@ -57,7 +57,7 @@ class WideResnetBatchensemble(tf.test.TestCase):
         #                      networks.wide_resnet_hyperbatchensemble
         filters_resnet = [16]
         for i in range(0, 3):  # 3 groups of blocks
-            filters_resnet.extend([16 * width * 2 ** i] * 9)  # 9 layers in each block
+            filters_resnet.extend([16 * width * 2**i] * 9)  # 9 layers in each block
 
         e_head_dims = [x for x in filters_resnet] + [2 * num_classes]
 

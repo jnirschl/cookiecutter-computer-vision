@@ -7,7 +7,7 @@ def unet_xception(
     num_classes: int,
     padding: str = "same",
     downsample: int = 2,
-)-> tf.keras.models.Model:
+) -> tf.keras.models.Model:
     """
     From https://keras.io/examples/vision/oxford_pets_image_segmentation/#prepare-unet-xceptionstyle-model
     """

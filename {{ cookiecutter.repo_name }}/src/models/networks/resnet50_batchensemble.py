@@ -324,7 +324,7 @@ def resnet_batchensemble(
     random_sign_init,
     use_ensemble_bn,
     depth=50,
-)-> tf.keras.models.Model:
+) -> tf.keras.models.Model:
     """Builds BatchEnsemble ResNet50 or ResNet 101.
 
     Args:

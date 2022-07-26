@@ -41,7 +41,7 @@ def tf_resize_pair(img, mask, height, width, resize_method=image.ResizeMethod.BI
 def random_crop(img, IMG_HEIGHT=224, IMG_WIDTH=224, IMG_CH=3):
     """Accept and image as tf.data.tensor_slices and returns
     the image with random cropping applied"""
-    return tf.image.random_crop(img, size=[ IMG_HEIGHT, IMG_WIDTH, IMG_CH])
+    return tf.image.random_crop(img, size=[IMG_HEIGHT, IMG_WIDTH, IMG_CH])
 
 
 def random_crop_pair(img, mask, IMG_HEIGHT=224, IMG_WIDTH=224, IMG_CH=3):

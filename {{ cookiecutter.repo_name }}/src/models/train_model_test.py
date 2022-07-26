@@ -54,7 +54,9 @@ class TestTrainModel:
             "accuracy": 0.02901785634458065,
         }
 
-        history = train.fit(mapfile_path, cv_idx_path, params_filepath=mnist_params, debug=True)
+        history = train.fit(
+            mapfile_path, cv_idx_path, params_filepath=mnist_params, debug=True
+        )
         # assert abs(history.history["loss"][-1] - expected_history["loss"]) < 0.0001
         # assert (
         #     abs(history.history["accuracy"][-1] - expected_history["accuracy"]) < 0.0001

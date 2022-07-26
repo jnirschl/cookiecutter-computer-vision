@@ -1,7 +1,8 @@
 import os
+from subprocess import check_output
+
 import pytest
 import yaml
-from subprocess import check_output
 from conftest import system_check
 
 

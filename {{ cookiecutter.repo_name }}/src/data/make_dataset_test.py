@@ -32,7 +32,9 @@ def test_params():
 class TestMakeDataset:
     def test_mnist_python(self, input_dir, output_dir, test_params):
         """ """
-        mapfile_df = make_dataset.create(input_dir, output_dir, params_filepath=test_params)
+        mapfile_df = make_dataset.create(
+            input_dir, output_dir, params_filepath=test_params
+        )
         assert type(mapfile_df) is type(pd.DataFrame())
 
     def test_mnist_click(self, input_dir, output_dir, output_filename, test_params):

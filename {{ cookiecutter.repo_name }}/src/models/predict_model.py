@@ -81,14 +81,18 @@ def predict(
     # help="Filepath to the CSV with image filenames and class labels.",
 )
 @click.argument(
-    "model_path", type=click.Path(exists=True),
+    "model_path",
+    type=click.Path(exists=True),
 )
 @click.option("--params_filepath", "-p", default="params.yaml")
 @click.option("--file_ext", default="png")
 @click.option("--overlap_factor", default=4)
 @click.option("--batch_size", "-b", default=16)
 @click.option(
-    "--results-dir", "-r", default=Path("./results").resolve(), type=click.Path(),
+    "--results-dir",
+    "-r",
+    default=Path("./results").resolve(),
+    type=click.Path(),
 )
 def main(
     input_dir,

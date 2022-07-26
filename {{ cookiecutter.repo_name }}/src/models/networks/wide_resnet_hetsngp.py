@@ -183,7 +183,7 @@ def wide_resnet_hetsngp(
     eps=1e-5,
     sngp_var_weight=1.0,
     het_var_weight=1.0,
-)-> tf.keras.models.Model:
+) -> tf.keras.models.Model:
     """Builds Wide ResNet HetSNGP.
 
     Following Zagoruyko and Komodakis (2016), it accepts a width multiplier on the

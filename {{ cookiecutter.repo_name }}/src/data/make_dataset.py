@@ -89,7 +89,9 @@ def create(
 
 @click.command()
 @click.argument(
-    "input_dir", default=Path("./data/raw").resolve(), type=click.Path(exists=True),
+    "input_dir",
+    default=Path("./data/raw").resolve(),
+    type=click.Path(exists=True),
 )
 @click.argument(
     "output_dir",
@@ -99,7 +101,9 @@ def create(
 @click.argument("output_filename", default="mapfile_df.csv", type=click.Path())
 @click.option("--params_filepath", "-p", default="params.yaml")
 @click.option(
-    "--force", is_flag=True, help="Switch to force overwrite existing mean image.",
+    "--force",
+    is_flag=True,
+    help="Switch to force overwrite existing mean image.",
 )
 @click.option("--na-rep", default="nan")
 def main(
