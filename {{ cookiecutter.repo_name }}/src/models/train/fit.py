@@ -5,7 +5,6 @@ from pathlib import Path
 import click
 import numpy as np
 import tensorflow as tf
-import weightwatcher as ww
 from codetiming import Timer
 from dotenv import find_dotenv, load_dotenv
 from keras.utils.layer_utils import count_params
@@ -127,18 +126,6 @@ def fit(
     # set output vars
     results_dir = Path(results_dir).resolve()
 
-    if debug:
-        ww_summary = {"debug": True}
-    else:
-        ww_summary = {"debug": True}
-        # watcher = ww.WeightWatcher(model=model)
-        # results = watcher.analyze()
-        #
-        # ww_summary = watcher.get_summary()
-        # details = watcher.get_details()
-        # warning_df = details[details.warning != ""][["layer_id", "name", "warning"]]
-        # warning_df.to_csv(results_dir.joinpath("layer_warnings.csv"))
-
     # update metrics.json
     metrics_filepath = results_dir.joinpath(f"{metrics_file}")
     metrics = {
@@ -157,9 +144,6 @@ def fit(
             "val_accuracy": history.history["val_accuracy"][-1],
             "epochs": total_epochs,
             "iterations": int(total_epochs * train_steps_per_epoch),
-        },
-        "weightwatcher": {
-            **ww_summary,
         },
         "time": elapsed_time,
     }
