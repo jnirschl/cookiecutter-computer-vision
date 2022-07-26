@@ -12,3 +12,6 @@ Sphinxcontrib-napoleon-0.7
 black~=3.4.1
 black[d]~=3.4.1
 isort
+
+# pre-commit
+pre-commit ~= 2.20.0
