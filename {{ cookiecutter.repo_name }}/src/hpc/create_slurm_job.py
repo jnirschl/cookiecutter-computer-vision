@@ -67,7 +67,10 @@ from dotenv import find_dotenv, load_dotenv
     "--time", "-t", default="2:00:00", type=str, help="Wall time limit days-HH:mm:ss"
 )
 @click.option(
-    "--verbose", "-v", is_flag=True, help="Print verbose output.",
+    "--verbose",
+    "-v",
+    is_flag=True,
+    help="Print verbose output.",
 )
 def main(
     code: str = "dvc",
@@ -112,8 +115,8 @@ def main(
             f"\t#SBATCH --job-name='{job_name}'\n"
             f"\t#SBATCH --partition='{partition}' --qos={qos}\n"
             f"\t#SBATCH --nodelist='{nodelist}'\n"
-            f"\t#SBATCH --output=./logs/{job_name}_%j.out\n"
-            f"\t#SBATCH --error=./logs/{job_name}_%j.err\n"
+            f"\t#SBATCH --output=./logs/%x_%j.out\n"  # %u user, %x job, %a job array ID
+            f"\t#SBATCH --error=./logs/%x_%j.err\n"  # %u user, %x job, %a job array ID
             f"\t#SBATCH --time={time}\n"
             f"\t#SBATCH --nodes={nodes}\n"
             f"\t#SBATCH --mem={mem}gb\n"
@@ -122,7 +125,7 @@ def main(
             f"\t#SBATCH --mail-user='{email}'\n"
             f"\t#SBATCH --mail-type='{mail_type.upper() if email else None}'\n"
         )
-        logger.info(f"Setting up slurm job submission to use conda env {conda_env}")
+        logger.info(f"Setting up slurm job submission to use conda env: {conda_env}")
 
     with open(job_submission_file, "w") as fh:
         fh.writelines("#!/bin/bash\n# -*- coding: utf-8 -*-\nset -o pipefail\n\n")
