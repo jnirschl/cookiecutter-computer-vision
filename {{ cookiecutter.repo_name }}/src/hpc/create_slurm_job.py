@@ -260,7 +260,7 @@ def validate_inputs(email, mail_type, partition, port, time):
             f"Expected --email in format '\w.*@\w*\.(edu|com|org|net)', but received '{email}'"
         )
 
-    assert port > 0 and port < 2 ** 16, ValueError(
+    assert port > 0 and port < 2**16, ValueError(
         f"Expected port in range 1:{2 ** 16}, received {port}"
     )
 
