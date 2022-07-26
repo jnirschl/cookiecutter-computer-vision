@@ -14,7 +14,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "{{ cookiecutter.python_interpreter }}"
+python = "^{{ cookiecutter.python_version }}"
 click = ">=8.0.1"
 
 [tool.poetry.dev-dependencies]

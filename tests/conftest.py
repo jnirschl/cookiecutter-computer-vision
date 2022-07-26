@@ -12,7 +12,7 @@ args = {
     "author_name": "DrivenData",
     "email": "user@mail.com",
     "open_source_license": "BSD-3",
-    "python_interpreter": "python3",
+    "python_version": "3.10",
     "n_classes": "10",
     "color_mode": "rgb",
 }
