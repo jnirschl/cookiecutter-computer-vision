@@ -83,10 +83,15 @@ class TestCookieSetup(object):
         reqs_path = self.path / "requirements.txt"
         assert reqs_path.exists()
         assert no_curlies(reqs_path)
-        if pytest.param.get("python_interpreter"):
-            with open(reqs_path) as fin:
-                lines = list(map(lambda x: x.strip(), fin.readlines()))
-            assert "pathlib2" in lines
+
+        reqs_path = self.path / "requirements_dev.txt"
+        assert reqs_path.exists()
+        assert no_curlies(reqs_path)
+
+        # if pytest.param.get("python_interpreter"):
+        #     with open(reqs_path) as fin:
+        #         lines = list(map(lambda x: x.strip(), fin.readlines()))
+        #     assert "pathlib2" in lines
 
     def test_makefile(self):
         makefile_path = self.path / "Makefile"
@@ -101,23 +106,37 @@ class TestCookieSetup(object):
             "data/processed",
             "data/raw",
             "docs",
+            "logs",
             "models",
+            "models/dev",
+            "models/final",
             "notebooks",
             "references",
             "reports",
             "reports/figures",
+            "reports/project",
             "results",
             "src",
             "src/data",
             "src/data/mapfile",
             "src/features",
+            "src/hpc",
+            "src/img",
+            "src/img/metrics",
+            "src/img/morphology",
+            "src/img/segmentation",
             "src/models",
-            "src/tests",
+            "src/models/train",
+            "src/models/networks",
             "src/visualization",
+            ".github",
+            ".github/workflows",
         ]
 
         ignored_dirs = [str(self.path)]
 
         abs_expected_dirs = [str(self.path / d) for d in expected_dirs]
         abs_dirs, _, _ = list(zip(*os.walk(self.path)))
-        assert len(set(abs_expected_dirs + ignored_dirs) - set(abs_dirs)) == 0
+        assert len(set(abs_expected_dirs + ignored_dirs) - set(abs_dirs)) == 0, print(
+            f"SetDiff\t{set(abs_expected_dirs + ignored_dirs).difference(set(abs_dirs))}"
+        )

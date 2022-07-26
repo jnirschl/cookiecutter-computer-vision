@@ -11,7 +11,7 @@ args = {
     "project_name": "DrivenData",
     "author_name": "DrivenData",
     "open_source_license": "BSD-3-Clause",
-    "python_interpreter": "python",
+    "python_interpreter": "python3",
     "n_classes": "10",
     "color_mode": "rgb",
 }
