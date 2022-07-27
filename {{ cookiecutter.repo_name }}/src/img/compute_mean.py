@@ -5,6 +5,7 @@ import click
 import cv2
 import numpy as np
 import pandas as pd
+
 # Specify opencv optimization
 from dotenv import find_dotenv, load_dotenv
 
@@ -39,6 +40,10 @@ def image(mapfile, img_shape=None, grayscale=False, force=True):
     # compute mean and std
     mean_img = mean_subfun(mapfile_df, img_shape, FORMAT)
     std_img = std_subfun(mean_img, mapfile_df, img_shape, FORMAT)
+    assert mean_img.shape == std_img.shape, ValueError(
+        f"Dimension incompatibility for channel mean ({mean_img.shape}) "
+        f"and channel std {std_img.shape}."
+    )
 
     # save images
     mean_filename = str(Path(mapfile).parent.joinpath("mean_image.png"))
