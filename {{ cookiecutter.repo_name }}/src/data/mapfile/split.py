@@ -60,14 +60,23 @@ def split(
         temp_df = pd.DataFrame({"image_id": train_idx, fold_name: "train"}).set_index(
             "image_id"
         )
-        temp_df = temp_df.append(
-            pd.DataFrame({"image_id": test_idx, fold_name: "test"}).set_index(
-                "image_id"
-            )
+        temp_df = pd.concat(
+            [
+                temp_df,
+                pd.DataFrame({"image_id": test_idx, fold_name: "test"}).set_index(
+                    "image_id"
+                ),
+            ],
+            axis=0,
+            join="outer",
         )
 
         # append first fold to empty dataframe or join cols if n_fold > 0
-        split_df = split_df.append(temp_df) if n_fold == 0 else split_df.join(temp_df)
+        split_df = (
+            pd.concat([split_df, temp_df], axis=0, join="outer")
+            if n_fold == 0
+            else split_df.join(temp_df)
+        )
 
     # sort by index
     split_df = split_df.sort_index()
