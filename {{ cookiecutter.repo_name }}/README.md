@@ -34,12 +34,13 @@ git clone https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.
 
 # create virtual environment in folder
 cd {{ cookiecutter.repo_name }}
-python3 -m venv venv
-source venv/bin/activate
+poetry install
+poetry shell
 
-# install requirements
-pip3 install -r requirements.txt
-pip3 install -e .
+# initialize git repo
+git init
+git add .
+git commit -m "initial commit"
 
 # pull data from origin (https://dagshub.com/{{ cookiecutter.github_username }}/{{ cookiecutter.repo_name }})
 dvc init

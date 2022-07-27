@@ -97,8 +97,6 @@ target/
 /venv/
 
 # exclude data, logs, models, and results from source control by default
-/data/
-/test_data/
 /logs/
 /models/
 /results/
