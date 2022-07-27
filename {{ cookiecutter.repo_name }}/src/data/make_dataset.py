@@ -72,13 +72,13 @@ def create(
         # params_filepath=params_filepath,
     )
 
-    #
-    params["mean_img"] = [
-        float(elem) for elem in np.mean(mean_img, axis=tuple(range(2))) / 255.0
-    ]
-    params["std_img"] = [
-        float(elem) for elem in np.mean(std_img, axis=tuple(range(2))) / 255.0
-    ]
+    # compute channel wise mean for mean_img and std_img
+    channel_mean_mu = np.mean(mean_img, axis=tuple(range(2)))
+    channel_std_mu = np.mean(std_img, axis=tuple(range(2)))
+    if len(channel_mean_mu) == len(channel_std_mu):
+        params["mean_img"] = [float(elem) for elem in channel_mean_mu / 255.0]
+        params["std_img"] = [float(elem) for elem in channel_std_mu / 255.0]
+
     # save parameters
     save_params(params, filepath=params_filepath)
 
