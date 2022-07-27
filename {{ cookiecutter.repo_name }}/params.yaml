@@ -5,7 +5,7 @@ model_name: model_name
 n_classes: {{cookiecutter.n_classes}}
 random_seed: 9854321
 save_format: png
-segmentation: true
+segmentation: true if {{cookiecutter.task}} == "segmentation" else false
 std_img: nan
 target_size: {{cookiecutter.target_size}}
 test: true
