@@ -79,24 +79,26 @@ we will place the raw data under version control with dvc using ```dvc add```.
 In your terminal, use the dvc command-line interface to add the raw 
 immutable data.
 
+# TODO diff for seg vs. class
 ``` bash
-dvc add data/raw/nerve/data data/raw/nerve/mask \ 
---desc "Add raw data to version control"\
+dvc add data/raw/  \ 
+--desc "Add raw data to version control" \
 
 # add .dvc file to version control 
 git add -f data/raw/nerve/mask.dvc data/raw/nerve/data.dvc
 ```
 
 Now, create a stage to break images into smaller tiles using a custom shell script.
+# TODO only for segmentation
 ``` bash
 dvc run -n split_images \
--d src/data/split_images.sh \
--d data/raw/data \
--d data/raw/mask \
--o data/processed/data \
--o data/processed/mask \
---desc "Shell script to split images into 256x256 tiles and save in data/processed/"\
-bash src/data/split_images.sh
+ -d src/data/split_images.sh \
+ -d data/raw/data \ ## TODO update for segmentation (no need for split)
+ -d data/raw/mask \
+ -o data/processed/data \
+ -o data/processed/mask \
+ --desc "Shell script to split images into 256x256 tiles and save in data/processed/"\
+ bash src/data/split_images.sh
 
 git add dvc.yaml dvc.lock
 ```
@@ -104,31 +106,33 @@ git add dvc.yaml dvc.lock
 The next stage will create the mapfile, compute the mean and std images, and create train/test splits.
 ``` bash
 dvc run -n make_dataset -p color_mode,save_format,segmentation,target_size \
--d src/data/make_dataset.py \
--d data/processed/data \
--d data/processed/mask \
--o data/processed/mapfile_df.csv \
--o data/processed/split_train_dev.csv \
--o data/processed/mean_image.png \
--o data/processed/std_image.png \
---desc "Create a mapfile from the directories, compute the mean and std image, and split into train/dev/test sets." \
-python3 src/data/make_dataset.py data/processed/ data/processed/ mapfile_df.csv -p params.yaml --force
+ -d src/data/make_dataset.py \
+ -d src/data/mapfile \ 
+ -d data/processed/data \ # TODO remove data/processed for classification
+ -d data/processed/mask \
+ -o data/processed/mapfile_df.csv \
+ -o data/processed/split_train_dev.csv \
+ -o data/processed/mean_image.png \
+ -o data/processed/std_image.png \
+ --desc "Create a mapfile from the directories, compute the mean and std image, and split into train/dev/test sets." \
+ python3 src/data/make_dataset.py data/processed/ data/processed/ mapfile_df.csv -p params.yaml --force
+# set input dir to data/raw for classification
 ```
 
 We will use the mapfile and train/dev splits to train a model in the next stage.
 ``` bash
 dvc run -n train_seg -p color_mode,deterministic,mean_img,std_img,train_model,random_seed,segmentation,target_size,n_classes \
--d src/models/train_model.py \
--d src/models/train_callbacks.py \
--d src/models/networks/unet.py \
--d data/processed/mapfile_df.csv \
--d data/processed/split_train_dev.csv \
--d data/processed/mean_image.png \
--d data/processed/std_image.png \
--o models/dev/ \
--m results/metrics.json \
---desc "Train a model using the mapfile and train/dev splits." \
-python3 src/models/train_model.py data/processed/mapfile_df.csv data/processed/split_train_dev.csv -p params.yaml
+ -d src/models/train_model.py \
+ -d src/models/train_callbacks.py \
+ -d src/models/networks/unet.py \
+ -d data/processed/mapfile_df.csv \
+ -d data/processed/split_train_dev.csv \
+ -d data/processed/mean_image.png \
+ -d data/processed/std_image.png \
+ -o models/dev/ \
+ -m results/metrics.json \
+ --desc "Train a model using the mapfile and train/dev splits." \
+ python3 src/models/train_model.py data/processed/mapfile_df.csv data/processed/split_train_dev.csv -p params.yaml
 ```
 
 ## Project Organization
