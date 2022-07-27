@@ -1,22 +1,24 @@
-[tool.poetry]
-name = "{{ cookiecutter.repo_name }}"
-version = "{{ cookiecutter.version }}"
-description = "{{ cookiecutter.description }}"
-authors = ["{{ cookiecutter.author_name }} <{{cookiecutter.email}}>"]
-license = "{{cookiecutter.open_source_license}}"
-homepage = "https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.repo_name }}"
-repository = "https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.repo_name }}"
-documentation = "https://{{cookiecutter.project_name}}.readthedocs.io"
-keywords = ["computer vision"]
-readme ="README.md"
+[tool.poetry] # name of the package, required
+name = "{{ cookiecutter.repo_name }}" # Req: name of package
+version = "{{ cookiecutter.version }}" # Req: follow semantic versioning
+description = "{{ cookiecutter.description }}" # Req: short description
+authors = ["{{ cookiecutter.author_name }} <{{cookiecutter.email}}>"] # Req: must be in form [name <email>]
+license = "{{cookiecutter.open_source_license}}" # Opt: recommended
+homepage = "https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.repo_name }}" # Opt
+repository = "https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.repo_name }}" # Opt
+documentation = "https://{{cookiecutter.project_name}}.readthedocs.io" # Opt
+keywords = ["computer vision"] # Opt
+readme ="README.md" # Opt
 classifiers = [
     "{{cookiecutter.development_status}}",
 ]
 packages = [
     { include = "src" },
 ]
+#include = ["CHANGELOG.md"] # Opt: list of patterns to include
+#exclude = ["CHANGELOG.md"] # Opt: list of patterns to include
 
-[tool.poetry.dependencies]
+[tool.poetry.dependencies] # Project dependencies (looks to PyPi by default)
 python = ">=3.8,<3.11"
 click = ">=8.0.3"
 coverage = ">6.0.2"
@@ -26,7 +28,7 @@ numpy = ">=1.21"
 PyYAML = ">=5.4"
 requests = "~=2.25.1"
 keras = ">=2.7.0"
-Pillow = "8.2.0"
+Pillow = "9.0.1"
 opencv-contrib-python = "~=4.5.2.52"
 tensorflow = "~=2.9.1"
 scikit-learn = "^1.1.1"
@@ -34,7 +36,7 @@ hyperopt = "^0.2.7"
 tableone = "^0.7.10"
 tensorflow-addons = "^0.17.1"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.dev-dependencies] # Project dev-dependencies
 pytest = "^7.1.2"
 flake8 = "^4.0.1"
 pytest-randomly = "^3.12.0"
@@ -45,7 +47,7 @@ pre-commit = "^2.20.0"
 sphinxcontrib-napoleon = "^0.7"
 mpy = "^0.1"
 
-[tool.poetry.scripts]
+[tool.poetry.scripts] # scripts or executables that will be installed when installing the package
 {{cookiecutter.project_name}} = "{{cookiecutter.repo_name}}.__main__:main"
 
 [tool.coverage.paths]
