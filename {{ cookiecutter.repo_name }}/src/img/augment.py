@@ -1,4 +1,4 @@
-import albumentations as Alb
+#import albumentations as Alb
 import numpy as np
 import tensorflow as tf
 import tensorflow_addons as tfa
@@ -98,7 +98,7 @@ def random_flip(img):
 def apply_transforms(img, label, input_shape, mean, std, max_delta=0.2):
     # resizing to [orig, orig*1.25]
     new_size = np.random.randint(
-        input_shape[0], np.round(input_shape[0] * 1.25).astype(np.int)
+        input_shape[0], np.round(input_shape[0] * 1.25).astype(int)
     )
     img = tf_resize(img, height=new_size, width=new_size)
 
@@ -157,7 +157,7 @@ def apply_transforms(img, label, input_shape, mean, std, max_delta=0.2):
 def apply_transforms_pair(img, mask, input_shape, mean, std, max_delta=0.2):
     # resizing to [orig, orig*1.25]
     new_size = np.random.randint(
-        input_shape[0], np.round(input_shape[0] * 1.25).astype(np.int)
+        input_shape[0], np.round(input_shape[0] * 1.25).astype(int)
     )
     img, mask = tf_resize_pair(img, mask, new_size, new_size)
 
