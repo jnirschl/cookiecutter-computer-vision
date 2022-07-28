@@ -56,6 +56,7 @@ from dotenv import find_dotenv, load_dotenv
     help="Partition to use",
 )
 @click.option("--port", default=8800, type=int, help="Port for jupyter lab hosting")
+@click.option("--poetry", is_flag=True, help="Set flag for using Poetry for virtualenv")
 @click.option(
     "--qos",
     "-q",
@@ -82,13 +83,14 @@ def main(
     job_submission_file: str = "slurm_job.sh",
     jupy_ip: str = "0.0.0.0",
     mail_type: str = "END,FAIL",
-    mem: int = 16,
+    mem: int = 8,
     nodelist=None,
     nodes: int = 1,
     partition: str = "pasteur",
+    poetry: bool = False,
     port: int = 8800,
     qos: str = "normal",
-    time: str = "2:00:00",
+    time: str = "00:30:00",
     verbose: bool = False,
 ) -> int:
     """Creates shell script for slurm job submission
@@ -98,7 +100,7 @@ def main(
 
     # set dirs
     script_dir = Path(__file__).resolve().parents[0]  # project_dir/src/hpc
-    project_dir = script_dir.parents[2]  # project_dir/
+    project_dir = script_dir.parents[1]  # project_dir/
     conda_profile = Path.home().joinpath("miniconda3", "etc", "profile.d", "conda.sh")
 
     # validate inputs
@@ -173,15 +175,23 @@ def main(
                 "#srun /usr/local/cuda/samples/1_Utilities/deviceQuery/deviceQuery\n"
             )
 
+        # print update and set cwd
         fh.writelines(
             '\necho -e "Resources are allocated."\n'
-            f"if [[ -f {conda_profile} ]]; then\n\t"
-            f'echo -e "Activating conda environment {conda_env}."\n\t'
-            f"source {conda_profile}\n\tconda activate {conda_env}\n"
-            f"else\n\t"
-            f"echo -e 'FileNotFoundError: {conda_profile}'\nexit 1\n"
-            "fi\n\n"
+            f'cd "{Path(project_dir).resolve()}"\n'
         )
+
+        if poetry:
+            fh.writelines("poetry shell")
+        else:
+            fh.writelines(
+                f"if [[ -f {conda_profile} ]]; then\n\t"
+                f'echo -e "Activating conda environment {conda_env}."\n\t'
+                f"source {conda_profile}\n\tconda activate {conda_env}\n"
+                f"else\n\t"
+                f"echo -e 'FileNotFoundError: {conda_profile}'\nexit 1\n"
+                "fi\n\n"
+            )
 
         if code.lower() == "dvc":
             if verbose:
@@ -189,7 +199,6 @@ def main(
 
             fh.writelines(
                 '\n ## run dvc\necho -e "Running DVC repro..."\n'
-                f'cd "{Path(project_dir).resolve()}"\n'
                 "dvc pull -r origin\n"
                 "dvc repro\n\n"
                 "# Create report comparing metrics to master\n"
