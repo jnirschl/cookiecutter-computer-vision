@@ -41,7 +41,7 @@ def create_dataset(
     )
 
     # build tf.data pipeline - map transforms before caching
-    if params["segmentation"]:
+    if params["task"] == "segmentation":
         dataset = dataset.map(
             tf_imreadpair,
             num_parallel_calls=tf.data.AUTOTUNE,
@@ -53,7 +53,7 @@ def create_dataset(
                 ),
                 num_parallel_calls=tf.data.AUTOTUNE,
             )
-    else:
+    elif params["task"] == "classification":
         dataset = dataset.map(
             tf_imread,
             num_parallel_calls=tf.data.AUTOTUNE,
@@ -66,6 +66,8 @@ def create_dataset(
                 ),
                 num_parallel_calls=tf.data.AUTOTUNE,
             )
+    else:
+        ValueError(f"Invalid value for params.task:\t{params['task']}\nExpected ['classification','segmentation']")
 
     # cache before shuffle to randomize order
     dataset = dataset.cache()

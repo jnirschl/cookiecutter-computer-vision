@@ -7,7 +7,7 @@
     "description": "A short description of the project.",
     "python_version": ["3.10", "3.9", "3.8"],
     "n_classes": ["10", "2"],
-    "task": ["segmentation", "classification"],
+    "task": ["classification", "segmentation"],
     "color_mode": ["rgb", "rgba", "grayscale"],
     "target_size": ["[224, 224, 3]", "[28, 28, 1]"],
     "open_source_license": ["MIT", "Apache-2.0", "GPL-3.0", "BSD-3", "No license file"],

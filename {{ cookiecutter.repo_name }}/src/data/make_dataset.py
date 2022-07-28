@@ -58,7 +58,7 @@ def create(
         output_dir,
         output_filename=output_filename,
         na_rep=na_rep,
-        segmentation=params["segmentation"],
+        segmentation=True if params["task"] == "segmentation" else False,
         save_format=params["save_format"],
     )
     mapfile_path = str(Path(output_dir).joinpath(output_filename).resolve())

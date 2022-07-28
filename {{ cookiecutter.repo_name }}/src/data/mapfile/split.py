@@ -38,10 +38,12 @@ def split(
 
     # get filenames and dependent variables (class)
     train_files = mapfile_df["filename"]
-    if params["segmentation"]:
+    if params["task"] == "segmentation":
         train_class = np.ones(len(mapfile_df["class"]), dtype=np.int32)
-    else:
+    elif params["task"] == "classification":
         train_class = mapfile_df["class"]
+    else:
+        ValueError(f"Invalid value for params.task:\t{params['task']}\nExpected ['classification','segmentation']")
 
     # K-fold split into train and dev sets stratified by train_labels
     # using random seed for reproducibility

@@ -69,15 +69,15 @@ def fit(
 
     # set batch size, epochs, and steps per epoch
     batch_size, epochs = train_params["batch_size"], train_params["epochs"]
-    train_steps_per_epoch = np.floor(len(train_idx) / batch_size).astype(np.int)
-    val_steps_per_epoch = np.floor(len(val_idx) / batch_size).astype(np.int)
+    train_steps_per_epoch = np.floor(len(train_idx) / batch_size).astype(int)
+    val_steps_per_epoch = np.floor(len(val_idx) / batch_size).astype(int)
 
     # set random seed
     np.random.seed(params["random_seed"])
     tf.random.set_seed(params["random_seed"])
 
     # create model
-    if params["segmentation"]:
+    if params["task"] == "segmentation":
         model = networks.unet(
             input_shape=params["target_size"],
             num_classes=params["n_classes"],
@@ -87,7 +87,7 @@ def fit(
             loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
             metrics=["accuracy"],
         )
-    else:
+    elif params["task"] == "classification":
         model = networks.simple_nn(
             input_shape=params["target_size"],
             batch_size=batch_size,
@@ -98,6 +98,8 @@ def fit(
             loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
             metrics=["accuracy"],
         )
+    else:
+        ValueError(f"Invalid value for params.task:\t{params['task']}\nExpected ['classification','segmentation']")
 
     # if debug:
     #     logger.info(model.summary())
