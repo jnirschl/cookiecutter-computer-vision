@@ -42,8 +42,8 @@ git init
 git add .
 git commit -m "initial commit"
 
-# pull data from origin (https://dagshub.com/{{ cookiecutter.github_username }}/{{ cookiecutter.repo_name }})
-dvc init
+# init dvc and pull data from origin (https://dagshub.com/{{ cookiecutter.github_username }}/{{ cookiecutter.repo_name }})
+dvc init && dvc config core.autostage true
 dvc pull -r origin
 
 # check the status of the pipleline
@@ -79,17 +79,17 @@ we will place the raw data under version control with dvc using ```dvc add```.
 In your terminal, use the dvc command-line interface to add the raw 
 immutable data.
 
-# TODO diff for seg vs. class
+# TODO update for seg vs. class
 ``` bash
 dvc add data/raw/  \ 
---desc "Add raw data to version control" \
+ --desc "Add raw data to version control" \
 
 # add .dvc file to version control 
 git add -f data/raw/nerve/mask.dvc data/raw/nerve/data.dvc
 ```
 
 Now, create a stage to break images into smaller tiles using a custom shell script.
-# TODO only for segmentation
+# TODO update for seg vs. class
 ``` bash
 dvc run -n split_images \
  -d src/data/split_images.sh \
@@ -104,6 +104,7 @@ git add dvc.yaml dvc.lock
 ```
 
 The next stage will create the mapfile, compute the mean and std images, and create train/test splits.
+# TODO update for seg vs. class
 ``` bash
 dvc run -n make_dataset -p color_mode,save_format,segmentation,target_size \
  -d src/data/make_dataset.py \
@@ -121,10 +122,10 @@ dvc run -n make_dataset -p color_mode,save_format,segmentation,target_size \
 
 We will use the mapfile and train/dev splits to train a model in the next stage.
 ``` bash
-dvc run -n train_seg -p color_mode,deterministic,mean_img,std_img,train_model,random_seed,segmentation,target_size,n_classes \
- -d src/models/train_model.py \
- -d src/models/train_callbacks.py \
- -d src/models/networks/unet.py \
+dvc run -n train_model -p color_mode,deterministic,mean_img,std_img,train_model,random_seed,segmentation,target_size,n_classes \
+ -d src/models/train/fit.py \
+ -d src/models/train/callbacks.py \
+ -d src/models/networks/[MY_NETWORK].py \ 
  -d data/processed/mapfile_df.csv \
  -d data/processed/split_train_dev.csv \
  -d data/processed/mean_image.png \
@@ -132,14 +133,13 @@ dvc run -n train_seg -p color_mode,deterministic,mean_img,std_img,train_model,ra
  -o models/dev/ \
  -m results/metrics.json \
  --desc "Train a model using the mapfile and train/dev splits." \
- python3 src/models/train_model.py data/processed/mapfile_df.csv data/processed/split_train_dev.csv -p params.yaml
+ python3 src/models/train/fit.py data/processed/mapfile_df.csv data/processed/split_train_dev.csv -p params.yaml
 ```
 
 ## Project Organization
 ------------
 
     ├── LICENSE
-    ├── Makefile           <- Makefile with commands like `make data` or `make train`
     ├── README.md          <- The top-level README for developers using this project.
     ├── data
     │   ├── external       <- Data from third party sources.
@@ -163,7 +163,6 @@ dvc run -n train_seg -p color_mode,deterministic,mean_img,std_img,train_model,ra
     ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
     │                         generated with `pip freeze > requirements.txt`
     │
-    ├── setup.py           <- makes project pip installable (pip install -e .) so src can be imported
     ├── src                <- Source code for use in this project.
     │   ├── __init__.py    <- Makes src a Python module
     │   │
